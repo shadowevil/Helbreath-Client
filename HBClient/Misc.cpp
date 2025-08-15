@@ -130,7 +130,7 @@ void CMisc::GetDirPoint(char cDir, int * pX, int * pY)
 
 BOOL CMisc::bCheckValidString(const char* str)
 {
-	int len = strlen(str);
+	int len = (int)strlen(str);
 	for (int i = 0; i < len; i++)
 	{
 		if(str[i] == ' ') return FALSE;
@@ -140,7 +140,7 @@ BOOL CMisc::bCheckValidString(const char* str)
 
 BOOL CMisc::bCheckIMEString(const char* str)
 {
-	int len = strlen(str);
+	int len = (int)strlen(str);
 	for (int i = 0; i < len; i++)
 	{
 		if(str[i] < 0) return FALSE;
@@ -150,7 +150,7 @@ BOOL CMisc::bCheckIMEString(const char* str)
 
 void CMisc::ReplaceString(char* pStr, char cFrom, char cTo)
 {
-	int len = strlen(pStr);
+	int len = (int)strlen(pStr);
 	for (int i = 0; i < len; i++)
 	{
 		if (pStr[i] == cFrom) pStr[i] = cTo;
@@ -253,7 +253,7 @@ void CMisc::ColorTransfer(char cPixelFormat, COLORREF fcolor, WORD * wR, WORD * 
 
 BOOL CMisc::bEncode(char cKey, char*pStr)
 {
-	int iLen = strlen(pStr);
+	int iLen = (int)strlen(pStr);
 	for (int i = 0; i <= iLen-1; i++)
 	{
 		pStr[i] += i;
@@ -265,7 +265,7 @@ BOOL CMisc::bEncode(char cKey, char*pStr)
 
 BOOL CMisc::bDecode(char cKey, char*pStr)
 {
-	int iLen = strlen(pStr);
+	int iLen = (int)strlen(pStr);
 	for (int i = 0; i <= iLen-1; i++)
 	{
 		pStr[i]  = pStr[i] ^ (cKey ^ (iLen - i));
@@ -387,7 +387,7 @@ BOOL CMisc::bCheckValidName(const char*pStr)
 {
  int i, iLen;
  
-	iLen = strlen(pStr);
+	iLen = (int)strlen(pStr);
 	for (i = 0; i < iLen; i++) {
 		if ( pStr[i] < 0 )	return FALSE;
 	#ifndef DEF_FUCK_USA
@@ -544,7 +544,7 @@ int CMisc::iGetTextLengthLoc(HDC hDC, const char*pStr, int iLength)
  int i;
  BOOL bFlag;
  SIZE Size;
- int len = strlen(pStr);
+ int len = (int)strlen(pStr);
 
 	i = 0;
 	bFlag = FALSE;
@@ -653,7 +653,7 @@ BOOL CMisc::bIsValidSSN(const char*pStr)
 
 BOOL CMisc::bIsValidEmail(const char*pStr)
 {
-	int len = strlen( pStr );
+	int len = (int)strlen( pStr );
 	if( len < 7 ) return FALSE;
 	char cEmail[52];
 	ZeroMemory( cEmail, sizeof(cEmail) );

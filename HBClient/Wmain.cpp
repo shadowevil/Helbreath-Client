@@ -22,7 +22,7 @@
 #define WM_USER_TIMERSIGNAL		WM_USER + 500
 #define WM_USER_CALCSOCKETEVENT WM_USER + 600
 
-int				G_iAddTable31[64][510], G_iAddTable63[64][510]; // 스프라이트에서 참조하는 테이블. 속도를 위해 전역 
+int				G_iAddTable31[64][510], G_iAddTable63[64][510];
 int				G_iAddTransTable31[510][64], G_iAddTransTable63[510][64]; 
 
 long    G_lTransG100[64][64], G_lTransRB100[64][64];

@@ -405,7 +405,7 @@ DWORD DXC_ddraw::_dwColorMatch(IDirectDrawSurface7 * pdds4, WORD wColorKey)
 void DXC_ddraw::TextOut(int x, int y, const char* cStr, COLORREF rgb)
 {
 	SetTextColor(m_hDC, rgb );
-	::TextOutA(m_hDC, x, y, cStr, strlen(cStr));
+	::TextOutA(m_hDC, x, y, cStr, (int)strlen(cStr));
 }
 
 void DXC_ddraw::_TestPixelFormat()
@@ -600,7 +600,7 @@ void DXC_ddraw::_ReleaseBackBufferDC()
 void DXC_ddraw::DrawText(LPRECT pRect, const char*pString, COLORREF rgb)
 {
 	SetTextColor(m_hDC, rgb);
-	::DrawTextA(m_hDC, pString, strlen(pString), pRect, DT_CENTER | DT_NOCLIP | DT_WORDBREAK | DT_NOPREFIX);//v2.15
+	::DrawTextA(m_hDC, pString, (int)strlen(pString), pRect, DT_CENTER | DT_NOCLIP | DT_WORDBREAK | DT_NOPREFIX);//v2.15
 }
 
 HRESULT DXC_ddraw::InitFlipToGDI(HWND hWnd)

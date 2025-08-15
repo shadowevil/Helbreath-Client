@@ -13,7 +13,7 @@ CStrTok::CStrTok(char* pData, char* pSeps)
 	m_pData = pData;
 	m_pSeps = pSeps;
 
-	m_iDataLength = strlen(pData);
+	m_iDataLength = (int)strlen(pData);
 	m_iCurLoc     = 0;
 }
 

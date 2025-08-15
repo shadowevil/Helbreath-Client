@@ -1692,7 +1692,7 @@ BOOL CGame::bSendCommand(DWORD dwMsgID, WORD wCommand, char cDir, int iV1, int i
 		if (bCheckLocalChatCommand(pString) == TRUE) return FALSE;
 		memcpy((char*)cp, pString, strlen(pString) + 1);
 		
-		iRet = m_pGSock->iSendMsg(cMsg, 22 + strlen(pString));
+		iRet = m_pGSock->iSendMsg(cMsg, DWORD(22 + strlen(pString)));
 		break;
 
 	case MSGID_COMMAND_COMMON:
@@ -19091,7 +19091,7 @@ bool CGame::GetText(HWND hWnd,UINT msg,WPARAM wparam, LPARAM lparam)
 				if( len > 4 ) len = 4;
 				ImmGetCompositionString(hIMC, GCS_COMPSTR, m_cEdit, len);
 				ImmReleaseContext(hWnd, hIMC);
-				len = strlen(m_pInputBuffer) + strlen(m_cEdit);
+				len = int(strlen(m_pInputBuffer) + strlen(m_cEdit));
 				if (len >= m_cInputMaxLen) ZeroMemory(m_cEdit, sizeof(m_cEdit));
 			}
 			return TRUE;
@@ -19101,7 +19101,7 @@ bool CGame::GetText(HWND hWnd,UINT msg,WPARAM wparam, LPARAM lparam)
 			{
 				if(strlen(m_pInputBuffer) > 0)//길이가 0보다 길면
 				{
-					len = strlen(m_pInputBuffer);
+					len = int(strlen(m_pInputBuffer));
 					// 일반 버퍼의 내용을 지운다. IME조합문자면 한번에 지운다.
 										
 					switch (GetCharKind(m_pInputBuffer, len-1))
@@ -19119,7 +19119,7 @@ bool CGame::GetText(HWND hWnd,UINT msg,WPARAM wparam, LPARAM lparam)
 				}
 			}
 			else if ((wparam != 9) && (wparam != 13) && (wparam != 27)) {  // 빽스페이스가 아니고 탭키도 아니고 엔터키도 아니구 Escape도 아니라면 ..
-				len = strlen(m_pInputBuffer);
+				len = int(strlen(m_pInputBuffer));
 				if (len >= m_cInputMaxLen-1) return FALSE;
 				m_pInputBuffer[len] = wparam & 0xff;   //  넘어온 문자를 문자열에 넣기..
 				m_pInputBuffer[len+1] = 0;               //  뒤에 0붙이깃!!
@@ -19223,7 +19223,7 @@ void CGame::EndInputString()
 	m_bInputStatus = FALSE;
 
 	// 조합중인 문자가 있음 넣는다.
-	int len = strlen(m_cEdit);
+	int len = int(strlen(m_cEdit));
 
 	if (len > 0) {
 		m_cEdit[len] = '\0';
@@ -20696,7 +20696,7 @@ void CGame::DisplayGold(int iGold)
 	
 	snprintf(cGold, sizeof(cGold), "%d", iGold);
 
-	iStrLen = strlen(cGold);
+	iStrLen = int(strlen(cGold));
 	iStrLen--;
 
 	int cnt = 0;
@@ -20714,7 +20714,7 @@ void CGame::DisplayGold(int iGold)
 		cnt++;
 	}
 	
-	iStrLen = strlen(G_cTxt);
+	iStrLen = int(strlen(G_cTxt));
 	G_cTxt[iStrLen] = '\0';
 	_strrev(G_cTxt);
 
@@ -21195,7 +21195,7 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 		if (bIsPreDC == FALSE)
 			m_DDraw._GetBackBufferDC();
 		
-		GetTextExtentPoint32A(m_DDraw.m_hDC, cMsg, strlen(cMsg), &Size);
+		GetTextExtentPoint32A(m_DDraw.m_hDC, cMsg, (int)strlen(cMsg), &Size);
 		
 		switch (Size.cx / 160) {
 		case 0:
@@ -23564,7 +23564,7 @@ BOOL CGame::_bCheckBadWords(const char*pMsg)
 
 	ZeroMemory(cStr, sizeof(cStr));
 	strcpy_s(cStr, pMsg);
-	iLen = strlen(cStr);
+	iLen = (int)strlen(cStr);
 
 	for (i = 0; i < iLen; i++) {
 		if (m_pCGameMonitor->bCheckBadWord((char*)(cStr + i)) == TRUE) return TRUE;
@@ -34244,7 +34244,7 @@ void CGame::UpdateScreen_OnGame()
 				else {
 					dwPrevChatTime = m_dwCurTime;
 #if DEF_LANGUAGE > 2	//한국,영문,일문에 대해 욕 컨버트한다..
-					m_curse.ConvertString( G_cTxt, strlen(G_cTxt) );
+					m_curse.ConvertString( G_cTxt, (int)strlen(G_cTxt) );
 #endif
 					if ( strlen(G_cTxt) > 0 )
 					{

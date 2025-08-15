@@ -7,18 +7,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HBClient", "HBClient\HBClie
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
+		Debug|x64 ddraw doesn't work = Debug|x64 ddraw doesn't work
 		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
+		Release|x64 ddraw doesn't work = Release|x64 ddraw doesn't work
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Debug|x64.ActiveCfg = Debug|x64
-		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Debug|x64.Build.0 = Debug|x64
+		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Debug|x64 ddraw doesn't work.ActiveCfg = Debug|x64
+		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Debug|x64 ddraw doesn't work.Build.0 = Debug|x64
 		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Debug|x86.ActiveCfg = Debug|Win32
 		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Debug|x86.Build.0 = Debug|Win32
-		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Release|x64.ActiveCfg = Release|x64
-		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Release|x64.Build.0 = Release|x64
+		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Release|x64 ddraw doesn't work.ActiveCfg = Release|x64
+		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Release|x64 ddraw doesn't work.Build.0 = Release|x64
 		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Release|x86.ActiveCfg = Release|Win32
 		{0EE628B6-4D10-4B0A-BB6B-BDA651A2D7ED}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection

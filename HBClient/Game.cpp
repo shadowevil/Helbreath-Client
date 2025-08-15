@@ -5,30 +5,8 @@
 
 #include "Game.h"
 
-#if DEF_LANGUAGE == 1
-#include "lan_tai.h"
-#elif DEF_LANGUAGE == 2
-#include "lan_chi.h"
-#elif DEF_LANGUAGE == 3
-#include "lan_kor.h"
-#elif DEF_LANGUAGE == 4
 #include "lan_eng.h"
-#elif DEF_LANGUAGE == 5
-#include "lan_jap.h"
-#endif
 
-#ifdef DEF_HTMLCOMMOM
-	#include "GlobalVal.h"
-#endif
-
-#ifdef DEF_COLOR	//	mando 030125	»ö»ó Å×½ºÆ® ºÎºÐ.
-	#include "GlobalVal.h"
-#endif
-
-
-#if DEF_LANGUAGE == 3
-extern unsigned __stdcall ThreadProc(void *ch); 
-#endif
    
 extern char G_cSpriteAlphaDegree;
 
@@ -37,20 +15,6 @@ extern class XSocket * G_pCalcSocket;
 extern BOOL G_bIsCalcSocketConnected;
 extern DWORD G_dwCalcSocketTime, G_dwCalcSocketSendTime;
 extern HWND	G_hWnd, G_hEditWnd;
-
-#ifdef DEF_HTMLCOMMOM	//	Html ´ÙÀÌ¾ó·Î±× ºÎºÐ..
-	extern HWND G_hInternetWnd;
-
-	//	´ÙÀÌ¾ó·Î±× Ä¿¼­.. (m_d;) 020909..
-	POINT G_point;
-	//POINT G_Oldpoint;
-	//class CGame * G_pGame2;
-
-	//	´ÙÀÌ¾ó·Î±× »ý¼º&¼Ò¸ê..
-	extern BOOL G_bDlg1;
-	RECT G_rDlg1Rc;
-
-#endif
 
 extern HINSTANCE G_hInstance;
 
@@ -73,245 +37,6 @@ char  cFocusAction, cFocusFrame, cFocusDir, cFocusName[12];
 short sFocusX, sFocusY, sFocusOwnerType, sFocusAppr1, sFocusAppr2, sFocusAppr3, sFocusAppr4, sFocusStatus;
 int   iFocusApprColor;
 
-
-//////////////////////////////////////////////////////////////////////
-// À¥ ´ÙÀÌ¾ó ·Î±× Ãß°¡.. 20021207..
-//////////////////////////////////////////////////////////////////////
-
-#ifdef DEF_HTMLCOMMOM
-	//	mando	020904..(HTML VIEW?)
-	// Mesage handler for about box.
-	LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-	{
-	   HANDLE pthis =  GetProp( hDlg, THIS_PROP );
-
-	   if ( !pthis )
-	   {
-		  if ( message != WM_INITDIALOG )
-			 return FALSE;
-
-		  pthis =(PHANDLE) lParam;
-
-		  SetProp( hDlg, THIS_PROP, (HANDLE) pthis );
-	   }
-
-	   BOOL fResult = AboutDlgProc( hDlg, message, wParam, lParam );
-
-	   if ( message == WM_DESTROY )
-		  RemoveProp( hDlg, THIS_PROP );
-
-	   return fResult;
-	}
-
-	BOOL AboutDlgProc(HWND hdlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
-	{
-		//	Æ÷ÀÎÅÍ °¡µÎ±â^^; (m_d)
-	//	POINT m_OldDrawDataGripPnt;
-	//	RECT rc;
-	//	short msX, msY, msZ, sX, sY;
-	//	char cLB, cRB;
-
-		//	½ºÅ² ÀÔÈ÷±â.. (m_d;)
-		HBITMAP hBtnBit;
-
-	//	URL ¾ò¾î¿À±â..
-	//	char	cBuf[1024];
-	//	HANDLE	hFile;
-	//	DWORD	dwRead;
-
-	//	HDC m_BitDC;
-		HDC m_DlgDC;
-		PAINTSTRUCT ps;
-		HDC MemDC;
-		HBITMAP Dialog, OldDialog;
-		BITMAP bit;
-
-	//	POINT pPoint;
-		
-
-		//	À¥´ÙÀÌ¾ó·Î±× ºÎºÐ..
-		char cUrl[1000];
-		const char*cwdSN;
-		cwdSN = G_cWorldServerName;
-		cwdSN+=2;
-
-		int	_iwdID = atoi(cwdSN);
-	//	const char*_cwdID = G_cWorldServerName;
-
-		//	ÀÌ¸§ CGI EnCoderºÎºÐ..
-		char	_cURLName[320];
-		char	_pcCode[6];
-		char	_cPlayerNameOneC[2];
-	//	_cPlayerName = G_cPlayerName;
-		int		i = 0;
-		int		iname = 0;
-		int		_iEnCode=0;
-		
-
-		switch ( uMsg )
-		{
-		case WM_INITDIALOG:
-			
-			//	½ºÅ² ÃÊ±âÈ­..
-			hBtnBit = LoadBitmap(G_hInstance,MAKEINTRESOURCE(IDB_BIT_OKBN));
-			SendDlgItemMessage(hdlg,IDOK,BM_SETIMAGE,(WPARAM)IMAGE_BITMAP,(LPARAM)hBtnBit);
-
-	/////////////////////////////////
-	//		//	°¡µÎ±â ÃÊ±âÈ­^^; (m_d)
-	//		G_Oldpoint.x = 320;
-	//		G_Oldpoint.y = 240;
-	//		SetCursorPos(G_Oldpoint.x, G_Oldpoint.y);
-
-			//	´ÙÀÌ¾ó ·Î±× ¹Ú½º ·ºÆ®°ª¾ò¾î¿À±â.. 
-			GetClientRect(hdlg,&G_rDlg1Rc);
-
-			//	»ý¼º½Ã º¸¿©ÁÖ°ÔµÉ À¥ÆäÀÌÁö.. (m_d;)
-	//		hFile =  CreateFileA("URL.txt",GENERIC_READ,0,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
-	//		if(hFile != INVALID_HANDLE_VALUE)
-	//		{
-	//			memset(cBuf,0,1024);
-	//			ReadFile(hFile,cBuf,1024,&dwRead,NULL);
-	//			CloseHandle(hFile);
-	//		}
-
-	//		char	*cPlayerName = G_cPlayerName;
-
-			memset(&_cURLName,0,320);
-			
-			while(G_cPlayerName[i])
-			{
-				//	¹®ÀÚ¿­ ÇÏ³ª¾¿ »©¿Í¼­ Ã³¸®..
-				memset(&_cPlayerNameOneC,0,2);
-				memcpy(&_cPlayerNameOneC ,&G_cPlayerName[i],1);
-
-				//	'%'¸¦ ºÙ¿©¼­ 10Áø¼ö·Î º¯È¯..
-				memset(_pcCode,0,sizeof(_pcCode));
-				sprintf(_pcCode,"%%%d",(int *)_cPlayerNameOneC[0]);
-				
-
-				//	URL¹®Àå¿¡ ÀúÀå..
-				strcpy(_cURLName + iname, _pcCode);
-				iname += strlen(_pcCode);
-
-				i++;
-			}
-
-	//====================================================================
-	//		URL Decoding
-	//====================================================================
-	//		char	*value;
-	//		int		value_len;
-	//		char	xdigit[2];
-	//
-	//
-	//		int i = 0;
-	//		for(int j=0; j < value_len ; j++)
-	//		{
-	//			switch(value[i])
-	//			{
-	//			//	°ø¹é..
-	//			case '+':
-	//				value[i] = 0;
-	//				break;
-	//
-	//			//	Æ¯¼ö¹®ÀÚ..
-	//			case '%':
-	//				xdigit[0] = value[j+1];
-	//				xdigit[1] = value[j+1];
-	//				value[i] = (char) strtol(xdigit, (char**) NULL, 16);
-	//				j += 2;
-	//				break;
-	//
-	//			//	ÀÏ¹Ý¹®ÀÚ..
-	//			default:
-	//				value[i] = value[j];
-	//				break;
-	//			}
-	//			i++;
-	//		}
-
-
-			memset(cUrl,0,sizeof(cUrl));
-//	¿£ÄÚµùºÎºÐ »©´Þ·¡¼­..
-//			wsprintfA( cUrl, "211.144.8.53/login.asp?WorldID=%d&PlayerLevel=%d&PlayerName=%s&MapName=%s",
-//					_iwdID, G_iLevel, _cURLName, G_cMapName );
-			wsprintfA( cUrl, "211.144.8.53/login.asp?WorldID=%d&PlayerLevel=%d&PlayerName=%s&MapName=%s",
-					_iwdID, G_iLevel, G_cPlayerName, G_cMapName );
-			
-	//		wsprintfA( cUrl, "www.empas.com",G_cMapName);
-
-	//		SetDlgItemText( hdlg, IDC_WEBCTRL, cBuf );
-	//		SetDlgItemText( hdlg, IDC_WEBCTRL, "http://www.fantasymasters.co.kr" );
-
-			SetDlgItemText( hdlg, IDC_WEBCTRL, cUrl );
-			
-			FORWARD_WM_NEXTDLGCTL( hdlg, GetDlgItem( hdlg, IDOK ), 1, PostMessage );
-			
-			break;
-
-		case WM_PAINT:
-			m_DlgDC = BeginPaint(hdlg ,&ps);
-			MemDC = ::CreateCompatibleDC(m_DlgDC);
-			Dialog = LoadBitmap(G_hInstance,MAKEINTRESOURCE(IDB_BIT_DLG));
-			OldDialog = (HBITMAP)SelectObject(MemDC,Dialog);
-
-			::GetObject(Dialog,sizeof(BITMAP),&bit );
-
-			BitBlt(m_DlgDC,0,0,bit.bmWidth,bit.bmHeight,MemDC,0,0,SRCCOPY);
-
-			SelectObject(MemDC,OldDialog);
-			DeleteObject(Dialog);
-			DeleteDC(MemDC);
-			EndPaint(hdlg,&ps);
-
-			break;
-
-		case WM_SETFOCUS:
-			SetFocus(hdlg);
-			break;
-
-		case WM_COMMAND:
-			
-			switch ( GET_WM_COMMAND_ID( wParam, lParam ) )
-			{
-			case IDOK:
-			case IDCANCEL:
-
-	//			::GetCursorPos(&pPoint);
-				G_bDlg1 = FALSE;
-				EndDialog( hdlg, 0 );
-	//			::SetFocus(G_hWnd);
-	///			::SetCursorPos(pPoint.x, pPoint.y);
-	//			::SetCursorPos(10, 10);
-
-				
-				break;
-				
-			default:
-				
-				return FALSE;
-			}
-			
-			break;
-			
-			default:
-				
-				return FALSE;
-		}
-		
-		return TRUE;
-	}
-
-	//============================================================================
-	//	À¥ ´ÙÀÌ¾ó ·Î±×Ã¢À» ¶ç¿î´Ù..mando 021031
-	void CGame::WebDialog()
-	{
-		G_bDlg1 = TRUE;	//	´ÙÀÌ¾ó·Î±× ¹Ú½º°¡ »ý¼ºµÇ¾ú´Ù..
-		G_hInternetWnd = CreateDialog( G_hInstance, MAKEINTRESOURCE(IDD_COMMON), G_hWnd, (DLGPROC) AboutDlgProc );		
- 		SetFocus(G_hInternetWnd);
-		ShowWindow( G_hInternetWnd, SW_SHOWNORMAL );
-	}
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -826,18 +551,18 @@ BOOL CGame::bInit(HWND hWnd, HINSTANCE hInst, const char* pCmdLine)
 		ZeroMemory(G_cCmdLineTokenD, sizeof(G_cCmdLineTokenD));
 		ZeroMemory(G_cCmdLineTokenE, sizeof(G_cCmdLineTokenE));
 		
-		strcpy(G_cCmdLine, pCmdLine);
+		strcpy_s(G_cCmdLine, pCmdLine);
 
 		iIndex = 0;
 		pStrTok = new class CStrTok(const_cast<char*>(pCmdLine), seps);
 		token = pStrTok->pGet(); 
 		while( token != NULL ) {
 			switch (iIndex) {
-			case 0:	strcpy(G_cCmdLineTokenA, token); break;
-			case 1: strcpy(G_cCmdLineTokenB, token); break;
-			case 2: strcpy(G_cCmdLineTokenC, token); break;
-			case 3: strcpy(G_cCmdLineTokenD, token); break;
-			case 4: strcpy(G_cCmdLineTokenE, token); break;
+			case 0:	strcpy_s(G_cCmdLineTokenA, token); break;
+			case 1: strcpy_s(G_cCmdLineTokenB, token); break;
+			case 2: strcpy_s(G_cCmdLineTokenC, token); break;
+			case 3: strcpy_s(G_cCmdLineTokenD, token); break;
+			case 4: strcpy_s(G_cCmdLineTokenE, token); break;
 			}
 			
 			token = pStrTok->pGet();
@@ -847,8 +572,8 @@ BOOL CGame::bInit(HWND hWnd, HINSTANCE hInst, const char* pCmdLine)
 	}
 
 	ZeroMemory(G_cCmdLineTokenA_Lowercase, sizeof(G_cCmdLineTokenA_Lowercase));
-	strcpy(G_cCmdLineTokenA_Lowercase, G_cCmdLineTokenA);
-	_strlwr(G_cCmdLineTokenA_Lowercase);
+	strcpy_s(G_cCmdLineTokenA_Lowercase, G_cCmdLineTokenA);
+	_strlwr_s(G_cCmdLineTokenA_Lowercase, sizeof(G_cCmdLineTokenA_Lowercase));
 
 	// v2.03 ÇÑ¹Ì¸£ °ú±Ý 
 	if (memcmp(G_cCmdLineTokenA_Lowercase, "/egparam", 8) == 0) {
@@ -1625,8 +1350,8 @@ BOOL CGame::bSendCommand(DWORD dwMsgID, WORD wCommand, char cDir, int iV1, int i
 		cp += 50;
 
 		ZeroMemory(cTxt, sizeof(cTxt)); // v1.4
-		if ((rand() % 2) == 0) strcpy(cTxt, "Male");
-		else strcpy(cTxt, "Female");
+		if ((rand() % 2) == 0) strcpy_s(cTxt, "Male");
+		else strcpy_s(cTxt, "Female");
 		memcpy(cp, cTxt, 10);
 		cp += 10;
 
@@ -2265,10 +1990,10 @@ BOOL CGame::bSendCommand(DWORD dwMsgID, WORD wCommand, char cDir, int iV1, int i
 
 #ifdef DEF_HTMLCOMMOM	//	Àü¿ªÀ¸·Î »©±âÀ§ÇÑ..mando 
 	G_iLevel			=	m_iLevel;
-	strcpy(G_cWorldServerName, m_cWorldServerName);
-	strcpy(G_cPlayerName,	m_cPlayerName);
-	strcpy(G_cMapName	,	m_cMapName);
-	strcpy(G_cMapMessage,	m_cMapMessage);
+	strcpy_s(G_cWorldServerName, m_cWorldServerName);
+	strcpy_s(G_cPlayerName,	m_cPlayerName);
+	strcpy_s(G_cMapName	,	m_cMapName);
+	strcpy_s(G_cMapMessage,	m_cMapMessage);
 #endif
 
 	return TRUE;
@@ -2337,7 +2062,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 					_tmp_iChatIndex = m_pMapData->m_pData[dX][dY].m_iDeadChatMsg;
 					_tmp_sStatus    = m_pMapData->m_pData[dX][dY].m_sDeadStatus;
 					
-					strcpy(_tmp_cName, m_pMapData->m_pData[dX][dY].m_cDeadOwnerName);
+					strcpy_s(_tmp_cName, m_pMapData->m_pData[dX][dY].m_cDeadOwnerName);
 
 					sItemSprite      = m_pMapData->m_pData[dX][dY].m_sItemSprite;
 					sItemSpriteFrame = m_pMapData->m_pData[dX][dY].m_sItemSpriteFrame;
@@ -2405,9 +2130,9 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 					iFocusApprColor = _tmp_iApprColor; // v1.4
 					sFocusStatus = _tmp_sStatus;
 					ZeroMemory(cFocusName, sizeof(cFocusName));
-					strcpy(cFocusName, _tmp_cName);
+					strcpy_s(cFocusName, _tmp_cName);
 					ZeroMemory(m_cMCName, sizeof(m_cMCName));
-					strcpy(m_cMCName,  _tmp_cName);
+					strcpy_s(m_cMCName,  _tmp_cName);
 				
 					sFocus_dX = _tmp_dX; // v2.171
 					sFocus_dY = _tmp_dY; // v2.171
@@ -2445,7 +2170,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 					_tmp_iEffectType  = m_pMapData->m_pData[dX][dY].m_iEffectType;
 					_tmp_iEffectFrame = m_pMapData->m_pData[dX][dY].m_iEffectFrame;
 					 
-					strcpy(_tmp_cName, m_pMapData->m_pData[dX][dY].m_cOwnerName);
+					strcpy_s(_tmp_cName, m_pMapData->m_pData[dX][dY].m_cOwnerName);
 					bRet = TRUE;
 
 					if (m_iIlusionOwnerH != NULL) {
@@ -2528,9 +2253,9 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 						iFocusApprColor = _tmp_iApprColor; // v1.4
 						sFocusStatus = _tmp_sStatus;
 						ZeroMemory(cFocusName, sizeof(cFocusName));
-						strcpy(cFocusName, _tmp_cName);
+						strcpy_s(cFocusName, _tmp_cName);
 						ZeroMemory(m_cMCName, sizeof(m_cMCName));
-						strcpy(m_cMCName,  _tmp_cName);
+						strcpy_s(m_cMCName,  _tmp_cName);
 						sFocus_dX = _tmp_dX; // v2.171
 						sFocus_dY = _tmp_dY; // v2.171
 						bContact = FALSE; 
@@ -2813,7 +2538,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 		_tmp_sAppr4     = sFocusAppr4;
 		_tmp_iApprColor = iFocusApprColor; // v1.4
 		_tmp_sStatus    = sFocusStatus;
-		strcpy(_tmp_cName, cFocusName);
+		strcpy_s(_tmp_cName, cFocusName);
 		_tmp_dX = sFocus_dX; // v2.171
 		_tmp_dY = sFocus_dY; // v2.171
 		
@@ -3100,7 +2825,7 @@ void CGame::InitPlayerResponseHandler(const char* pData)
 		// Á¢¼Ó °ÅºÎ ¿øÀÎ ÄÚµå¿¡ ¸Â´Â ¸Þ½ÃÁö Ãâ·Â
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
 
-		strcpy(m_cMsg, "3J"); break;
+		strcpy_s(m_cMsg, "3J"); break;
 
 		break;
 	}
@@ -4721,7 +4446,7 @@ void CGame::bItemDrop_ExternalScreen(char cItemID, short msX, short msY)
 					m_stDialogBoxInfo[20].sY  = tY;
 
 					ZeroMemory(m_stDialogBoxInfo[20].cStr, sizeof(m_stDialogBoxInfo[20].cStr));
-					strcpy(m_stDialogBoxInfo[20].cStr, cName);
+					strcpy_s(m_stDialogBoxInfo[20].cStr, cName);
 					//Ä³¸¯ÅÍÀÌ´Ù.
 					//bSendCommand(MSGID_COMMAND_COMMON, DEF_COMMONTYPE_GIVEITEMTOCHAR, cItemID, 1, m_sMCX, m_sMCY, m_pItemList[cItemID]->m_cName); //v1.4
 					break;
@@ -5285,9 +5010,9 @@ void CGame::DlgBoxClick_GuildMenu(short msX, short msY)
 			// Purchase¹öÆ° ClickµÇ¾ú´Ù. ¾ÆÀÌÅÛ ±¸ÀÔ¸í·ÉÀ» Àü¼ÛÇÑ´Ù.
 			ZeroMemory(cTemp, sizeof(cTemp));
 #ifdef DEF_ENGLISHITEM
-			strcpy(cTemp,"GuildAdmissionTicket");
+			strcpy_s(cTemp,"GuildAdmissionTicket");
 #else
-			strcpy(cTemp,"±æµå°¡ÀÔ½ÅÃ»¼­");
+			strcpy_s(cTemp,"±æµå°¡ÀÔ½ÅÃ»¼­");
 #endif
 			bSendCommand(MSGID_COMMAND_COMMON, DEF_COMMONTYPE_REQ_PURCHASEITEM, NULL, 1, NULL, NULL, cTemp); 
 			m_stDialogBoxInfo[7].cMode = 0;
@@ -5306,9 +5031,9 @@ void CGame::DlgBoxClick_GuildMenu(short msX, short msY)
 			// Purchase¹öÆ° ClickµÇ¾ú´Ù. ¾ÆÀÌÅÛ ±¸ÀÔ¸í·ÉÀ» Àü¼ÛÇÑ´Ù.
 			ZeroMemory(cTemp, sizeof(cTemp));
 #ifdef DEF_ENGLISHITEM
-			strcpy(cTemp,"GuildSecessionTicket");
+			strcpy_s(cTemp,"GuildSecessionTicket");
 #else
-			strcpy(cTemp,"±æµåÅ»Åð½ÅÃ»¼­");
+			strcpy_s(cTemp,"±æµåÅ»Åð½ÅÃ»¼­");
 #endif
 			bSendCommand(MSGID_COMMAND_COMMON, DEF_COMMONTYPE_REQ_PURCHASEITEM, NULL, 1, NULL, NULL, cTemp); 
 			m_stDialogBoxInfo[7].cMode = 0;
@@ -5740,13 +5465,13 @@ void CGame::DlgBoxClick_GuildOp(short msX, short msY)
 		switch (m_stGuildOpList[0].cOpMode) {
 		case 1:
 			// °¡ÀÔ ½ÅÃ»ÀÌ ½ÂÀÎµÇ¾ú´Ù.
-			strcpy(cName20, m_stGuildOpList[0].cName);
+			strcpy_s(cName20, m_stGuildOpList[0].cName);
 			bSendCommand(MSGID_COMMAND_COMMON, DEF_COMMONTYPE_JOINGUILDAPPROVE, NULL, NULL, NULL, NULL, cName20);
 			break;
 
 		case 2: 
 			// Å»Åð ½ÅÃ»ÀÌ ½ÂÀÎµÇ¾ú´Ù.
-			strcpy(cName20, m_stGuildOpList[0].cName);
+			strcpy_s(cName20, m_stGuildOpList[0].cName);
 			bSendCommand(MSGID_COMMAND_COMMON, DEF_COMMONTYPE_DISMISSGUILDAPPROVE, NULL, NULL, NULL, NULL, cName20);
 			break;
 		}
@@ -5763,13 +5488,13 @@ void CGame::DlgBoxClick_GuildOp(short msX, short msY)
 		switch (m_stGuildOpList[0].cOpMode) {
 		case 1:
 			// °¡ÀÔ ½ÅÃ»ÀÌ °ÅºÎ µÇ¾ú´Ù.
-			strcpy(cName20, m_stGuildOpList[0].cName);
+			strcpy_s(cName20, m_stGuildOpList[0].cName);
 			bSendCommand(MSGID_COMMAND_COMMON, DEF_COMMONTYPE_JOINGUILDREJECT, NULL, NULL, NULL, NULL, cName20);
 			break;
 
 		case 2: 
 			// Å»Åð ½ÅÃ»ÀÌ °ÅºÎ µÇ¾ú´Ù.
-			strcpy(cName20, m_stGuildOpList[0].cName);
+			strcpy_s(cName20, m_stGuildOpList[0].cName);
 			bSendCommand(MSGID_COMMAND_COMMON, DEF_COMMONTYPE_DISMISSGUILDREJECT, NULL, NULL, NULL, NULL, cName20);
 			break;
 		}
@@ -5786,7 +5511,7 @@ void CGame::SetItemCount(const char* pItemName, DWORD dwCount)
  char cTmpName[21];
 	
 	ZeroMemory(cTmpName, sizeof(cTmpName));
-	strcpy(cTmpName, pItemName);
+	strcpy_s(cTmpName, pItemName);
 
 	for (i = 0; i < DEF_MAXITEMS; i++)
 	if ((m_pItemList[i] != NULL) && (memcmp(m_pItemList[i]->m_cName, cTmpName, 20) == 0)) {
@@ -5807,26 +5532,26 @@ void CGame::AddEventList(const char* pTxt, char cColor, BOOL bDupAllow)
 	if (cColor == 10) {
 		// °øÁö ¸Þ½ÃÁö´Â ÀÌÂÊÀ¸·Î.
 		for (i = 1; i < 6; i++) {
-			strcpy(m_stEventHistory2[i-1].cTxt, m_stEventHistory2[i].cTxt);
+			strcpy_s(m_stEventHistory2[i-1].cTxt, m_stEventHistory2[i].cTxt);
 			m_stEventHistory2[i-1].cColor = m_stEventHistory2[i].cColor;
 			m_stEventHistory2[i-1].dwTime = m_stEventHistory2[i].dwTime;
 		} 
 
 		ZeroMemory(m_stEventHistory2[5].cTxt, sizeof(m_stEventHistory2[5].cTxt));
-		strcpy(m_stEventHistory2[5].cTxt, pTxt);
+		strcpy_s(m_stEventHistory2[5].cTxt, pTxt);
 		m_stEventHistory2[5].cColor = cColor;
 		m_stEventHistory2[5].dwTime = m_dwCurTime;
 
 	}
 	else {
 		for (i = 1; i < 6; i++) {
-			strcpy(m_stEventHistory[i-1].cTxt, m_stEventHistory[i].cTxt);
+			strcpy_s(m_stEventHistory[i-1].cTxt, m_stEventHistory[i].cTxt);
 			m_stEventHistory[i-1].cColor = m_stEventHistory[i].cColor;
 			m_stEventHistory[i-1].dwTime = m_stEventHistory[i].dwTime;
 		}
 
 		ZeroMemory(m_stEventHistory[5].cTxt, sizeof(m_stEventHistory[5].cTxt));
-		strcpy(m_stEventHistory[5].cTxt, pTxt);
+		strcpy_s(m_stEventHistory[5].cTxt, pTxt);
 		m_stEventHistory[5].cColor = cColor;
 		m_stEventHistory[5].dwTime = m_dwCurTime;
 	}
@@ -7947,18 +7672,18 @@ void CGame::_LoadShopMenuContents(char cType)
 	ZeroMemory(cTemp, sizeof(cTemp));
 	ZeroMemory(cFileName, sizeof(cFileName));
 	wsprintfA(cTemp, "contents%d", cType);
-	strcat(cFileName, "contents" );
-	strcat(cFileName, "\\");
-	strcat(cFileName, "\\");
-	strcat(cFileName, cTemp);
-	strcat(cFileName, ".txt");
+	strcat_s(cFileName, "contents");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, cTemp);
+	strcat_s(cFileName, ".txt");
 
 	hFile = CreateFileA(cFileName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-	pFile = fopen(cFileName, "rt");
-	if (pFile == NULL) return;
+	if(fopen_s(&pFile, cFileName, "rt") != 0 && !pFile)
+		return;
 	else {
 		pBuffer = new char[dwFileSize+1];
 		ZeroMemory(pBuffer, dwFileSize+1);
@@ -8130,7 +7855,7 @@ void CGame::PutString_SprFont(int iX, int iY, const char* pStr, short sR, short 
  char  cTmpStr[100];
 
 	ZeroMemory(cTmpStr, sizeof(cTmpStr));
-	strcpy(cTmpStr, pStr);
+	strcpy_s(cTmpStr, pStr);
 	iXpos = iX;
 	for (iCnt = 0; iCnt < strlen(cTmpStr); iCnt++) {
 		if ((cTmpStr[iCnt] >= 33) && (cTmpStr[iCnt] <= 122)) {
@@ -8154,7 +7879,7 @@ void CGame::PutString_SprFont2(int iX, int iY, const char* pStr, short sR, short
 	m_DDraw.ColorTransferRGB(RGB(sR, sG, sB), &iR, &iG, &iB);
 
 	ZeroMemory(cTmpStr, sizeof(cTmpStr));
-	strcpy(cTmpStr, pStr);
+	strcpy_s(cTmpStr, pStr);
 
 	iXpos = iX;
 	for (iCnt = 0; iCnt < strlen(cTmpStr); iCnt++) {
@@ -8178,7 +7903,7 @@ void CGame::PutString_SprFont3(int iX, int iY, const char* pStr, short sR, short
  char  cTmpStr[128];
 
 	ZeroMemory(cTmpStr, sizeof(cTmpStr));
-	strcpy(cTmpStr, pStr);
+	strcpy_s(cTmpStr, pStr);
 
 	if (iType != -1) {
 		iAdd = 95*iType;
@@ -8234,7 +7959,7 @@ void CGame::PutString_SprNum(int iX, int iY, const char* pStr, short sR, short s
  WORD  wR, wG, wB;
 
 	ZeroMemory(cTmpStr, sizeof(cTmpStr));
-	strcpy(cTmpStr, pStr);
+	strcpy_s(cTmpStr, pStr);
 
 	m_Misc.ColorTransfer(m_DDraw.m_cPixelFormat, RGB(sR, sG, sB), &wR, &wG, &wB);
 
@@ -8276,7 +8001,7 @@ void CGame::PutString(int iX, int iY, const char* pString, COLORREF color, BOOL 
 	else { 
 		pTmp = new char[strlen(pString)+2];
 		ZeroMemory(pTmp, strlen(pString)+2);
-		strcpy(pTmp, pString);
+		strcpy_s(pTmp, 200, pString);
 		for (i = 0; i < (int)strlen(pString); i++) 
 			if (pTmp[i] != NULL) pTmp[i] = '*';
 		
@@ -8339,19 +8064,19 @@ BOOL CGame::bInitMagicCfgList()
 	ZeroMemory(cTemp, sizeof(cTemp));
 	ZeroMemory(cFn, sizeof(cFn));
 
-	strcpy(cTemp, "magiccfg.txt");
+	strcpy_s(cTemp, "magiccfg.txt");
 
-	strcat(cFn, "contents");
-	strcat(cFn, "\\");
-	strcat(cFn, "\\");
-	strcat(cFn, cTemp);
+	strcat_s(cFn, "contents");
+	strcat_s(cFn, "\\");
+	strcat_s(cFn, "\\");
+	strcat_s(cFn, cTemp);
 
 	hFile = CreateFileA(cFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-	pFile = fopen(cFn, "rt");
-	if (pFile == NULL) return FALSE;
+	if(fopen_s(&pFile, cFn, "rt") != 0 && !pFile)
+		return FALSE;
 	else {
 		pContents = new char[dwFileSize+1];
 		ZeroMemory(pContents, dwFileSize+1);
@@ -8534,18 +8259,18 @@ BOOL CGame::bInitSkillCfgList()
 	ZeroMemory(cTemp, sizeof(cTemp));
 	ZeroMemory(cFn, sizeof(cFn));
 
-	strcpy(cTemp, "Skillcfg.txt");
-	strcat(cFn, "contents");
-	strcat(cFn, "\\");
-	strcat(cFn, "\\");
-	strcat(cFn, cTemp);
+	strcpy_s(cTemp, "Skillcfg.txt");
+	strcat_s(cFn, "contents");
+	strcat_s(cFn, "\\");
+	strcat_s(cFn, "\\");
+	strcat_s(cFn, cTemp);
 
 	hFile = CreateFileA(cFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-	pFile = fopen(cFn, "rt");
-	if (pFile == NULL) return FALSE;
+	if(fopen_s(&pFile, cFn, "rt") != 0 && !pFile)
+		return FALSE;
 	else {
 		pContents = new char[dwFileSize+1];
 		ZeroMemory(pContents, dwFileSize+1);
@@ -14795,7 +14520,7 @@ void CGame::LogResponseHandler(char* pData)
 		cp += 15; 
 		
 		ZeroMemory(m_cLogServerAddr, sizeof(m_cLogServerAddr));
-		strcpy(m_cLogServerAddr, cIpAddr);
+		strcpy_s(m_cLogServerAddr, cIpAddr);
 		// proxy ¼­¹ö Ãß°¡¸¦ À§ÇØ Æ÷Æ® °Ë»ö±îÁö ..
 		ip = (int *)cp; 
 		m_iLogServerPort =  *ip;
@@ -14926,7 +14651,7 @@ void CGame::LogResponseHandler(char* pData)
 		}
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "3A");
+		strcpy_s(m_cMsg, "3A");
 		break;
 	
 	case DEF_LOGRESMSGTYPE_CONFIRM: 
@@ -15114,84 +14839,84 @@ void CGame::LogResponseHandler(char* pData)
 
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "7H");
+		strcpy_s(m_cMsg, "7H");
 		break;
 
 		// v2.11 ¼ºÈÄ´Ï Ãß°¡ GD2S ¿ë °ú±Ý ¿¡¶ó ¸Þ¼¼Áö 
 	case DEF_LOGRESMSGTYPE_NOTENOUGHPOINT:
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "7I");
+		strcpy_s(m_cMsg, "7I");
 		break; 
 
 	// 06-19 ¼ºÈÄ´Ï Ãß°¡ GD2S ¿ë °ú±Ý ¿¡¶ó ¸Þ¼¼Áö 
 	case DEF_LOGRESMSGTYPE_ACCOUNTLOCKED:
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "7K");
+		strcpy_s(m_cMsg, "7K");
 		break; 
 
 	// 06-19 ¼ºÈÄ´Ï Ãß°¡ GD2S ¿ë °ú±Ý ¿¡¶ó ¸Þ¼¼Áö 
 	case DEF_LOGRESMSGTYPE_SERVICENOTAVAILABLE:
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "7L");
+		strcpy_s(m_cMsg, "7L");
 		break; 
 
 	case DEF_LOGRESMSGTYPE_PASSWORDCHANGESUCCESS:
 		// ÆÐ½º¿öµå¸¦ ¼º°øÀûÀ¸·Î ¹Ù²Ù¾ú´Ù.
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "6B");
+		strcpy_s(m_cMsg, "6B");
 		break;
 
 	case DEF_LOGRESMSGTYPE_PASSWORDCHANGEFAIL:
 		// ÆÐ½º¿öµå °»½Å¿¡ ½ÇÆÐÇÏ¿´´Ù.
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "6C");
+		strcpy_s(m_cMsg, "6C");
 		break;
 
 	case DEF_LOGRESMSGTYPE_PASSWORDMISMATCH:
 		// ÆÐ½º¿öµå°¡ ÀÏÄ¡ÇÏÁö ¾Ê´Â´Ù. 
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "11");
+		strcpy_s(m_cMsg, "11");
 		break;
 
 	case DEF_LOGRESMSGTYPE_NOTEXISTINGACCOUNT:
 		// °èÁ¤ÀÌ Á¸ÀçÇÏÁö ¾Ê´Â´Ù. 
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "12");
+		strcpy_s(m_cMsg, "12");
 		break;
 
 	case DEF_LOGRESMSGTYPE_NEWACCOUNTCREATED:
 		// »õ °èÁ¤ÀÌ ¸¸µé¾î Á³´Ù. 
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "54");
+		strcpy_s(m_cMsg, "54");
 		break;
 
 	case DEF_LOGRESMSGTYPE_NEWACCOUNTFAILED:
 		// »õ °èÁ¤ »ý¼º¿¡ ½ÇÆÐÇß´Ù.
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "05");
+		strcpy_s(m_cMsg, "05");
 		break;
 
 	case DEF_LOGRESMSGTYPE_ALREADYEXISTINGACCOUNT:
 		// »õ °èÁ¤ »ý¼º¿¡ ½ÇÆÐÇß´Ù. - ÀÌ¹Ì Á¸ÀçÇÏ´Â °èÁ¤ÀÌ´Ù.
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "06");
+		strcpy_s(m_cMsg, "06");
 		break;
 
 	case DEF_LOGRESMSGTYPE_NOTEXISTINGCHARACTER:
 		// Ä³¸¯ÅÍ°¡ Á¸ÀçÇÏÁö ¾Ê´Â´Ù. 
 		ChangeGameMode(DEF_GAMEMODE_ONMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "Not existing character!");
+		strcpy_s(m_cMsg, "Not existing character!");
 		break;
 
 	case DEF_LOGRESMSGTYPE_NEWCHARACTERCREATED:
@@ -15306,21 +15031,21 @@ void CGame::LogResponseHandler(char* pData)
 		}
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "47");
+		strcpy_s(m_cMsg, "47");
 		break;
 
 	case DEF_LOGRESMSGTYPE_NEWCHARACTERFAILED:
 		// »õ Ä³¸¯ÅÍ »ý¼º¿¡ ½ÇÆÐÇß´Ù.
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "28");
+		strcpy_s(m_cMsg, "28");
 		break;
 
 	case DEF_LOGRESMSGTYPE_ALREADYEXISTINGCHARACTER:
 		// »õ Ä³¸¯ÅÍ »ý¼º¿¡ ½ÇÆÐÇß´Ù. - ÀÌ¹Ì Á¸ÀçÇÏ´Â Ä³¸¯ÅÍÀÌ´Ù.
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "29");
+		strcpy_s(m_cMsg, "29");
 		break;
 
 	case DEF_ENTERGAMERESTYPE_PLAYING:
@@ -15367,14 +15092,14 @@ void CGame::LogResponseHandler(char* pData)
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
 		cp = (char*)(pData + DEF_INDEX2_MSGTYPE + 2);
 		switch (*cp) {
-		case 1:	strcpy(m_cMsg, "3E"); break;
-		case 2:	strcpy(m_cMsg, "3F"); break;
-		case 3:	strcpy(m_cMsg, "33"); break;
-		case 4: strcpy(m_cMsg, "3D"); break;
-		case 5: strcpy(m_cMsg, "3G"); break;
-		case 6: strcpy(m_cMsg, "3Z"); break;
+		case 1:	strcpy_s(m_cMsg, "3E"); break;
+		case 2:	strcpy_s(m_cMsg, "3F"); break;
+		case 3:	strcpy_s(m_cMsg, "33"); break;
+		case 4: strcpy_s(m_cMsg, "3D"); break;
+		case 5: strcpy_s(m_cMsg, "3G"); break;
+		case 6: strcpy_s(m_cMsg, "3Z"); break;
  		// v2.15 2002-5-21 ¿ùµå ÀÎ¿ø Á¦ÇÑ¿ë 
-		case 7: strcpy(m_cMsg, "3J"); break;
+		case 7: strcpy_s(m_cMsg, "3J"); break;
 		}  
 		break;
 
@@ -15382,14 +15107,14 @@ void CGame::LogResponseHandler(char* pData)
 		// Á¢¼Ó Á¾·á ¿äÃ»À» ÇÏ¿´´Ù.
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "3X");
+		strcpy_s(m_cMsg, "3X");
 		break;
 
 	case DEF_LOGRESMSGTYPE_NOTEXISTINGWORLDSERVER:
 		// ÇØ´ç ¿ùµå ¼­¹ö°¡ µ¿ÀÛÇÏ°í ÀÖÁö ¾Ê´Ù.
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "1Y");
+		strcpy_s(m_cMsg, "1Y");
 		break;
 	//v2.15 »óÇÏÃß°¡ Áß±¹ °ú±Ý¿ë ÀÀ´ä ¸Þ¼¼Áö
 	case DEF_LOGRESMSGTYPE_INPUTKEYCODE:
@@ -15399,11 +15124,11 @@ void CGame::LogResponseHandler(char* pData)
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
 		cp = (char*)(pData + DEF_INDEX2_MSGTYPE + 2);
 		switch (*cp) {
-		case 1:	strcpy(m_cMsg, "8U"); break; //MainMenu, Keycode registration success
-		case 2:	strcpy(m_cMsg, "82"); break; //MainMenu, Not existing Account
-		case 3:	strcpy(m_cMsg, "81"); break; //MainMenu, Password wrong
-		case 4: strcpy(m_cMsg, "8V"); break; //MainMenu, Invalid Keycode
-		case 5: strcpy(m_cMsg, "8W"); break; //MainMenu, Already Used Keycode
+		case 1:	strcpy_s(m_cMsg, "8U"); break; //MainMenu, Keycode registration success
+		case 2:	strcpy_s(m_cMsg, "82"); break; //MainMenu, Not existing Account
+		case 3:	strcpy_s(m_cMsg, "81"); break; //MainMenu, Password wrong
+		case 4: strcpy_s(m_cMsg, "8V"); break; //MainMenu, Invalid Keycode
+		case 5: strcpy_s(m_cMsg, "8W"); break; //MainMenu, Already Used Keycode
 		}  
 		break;
 
@@ -15412,7 +15137,7 @@ void CGame::LogResponseHandler(char* pData)
 	case DEF_LOGRESMSGTYPE_REALACCOUNT:
 		// »ç¿ëÀÚÀÇ 10±ÛÀÚ account¸¦ °¡Á® ¿Â´Ù.
 		cp = (pData + DEF_INDEX2_MSGTYPE + 2);
-		strncpy(m_cAccountName, cp, DEF_ACCOUNTLEN);
+		strncpy_s(m_cAccountName, cp, DEF_ACCOUNTLEN);
 		return;
 		break;
 #endif
@@ -15421,24 +15146,24 @@ void CGame::LogResponseHandler(char* pData)
 	case DEF_LOGRESMSGTYPE_FORCECHANGEPASSWORD:
 //		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 //		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-//		strcpy(m_cMsg, "2M");
+//		strcpy_s(m_cMsg, "2M");
 
 		// 2002-10-17 #1
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "6M");
+		strcpy_s(m_cMsg, "6M");
 		break;
 
 	case DEF_LOGRESMSGTYPE_INVALIDKOREANSSN:	// ÁÖ¹Îµî·Ï¹øÈ£ ¿¡·¯..
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "1a");
+		strcpy_s(m_cMsg, "1a");
 		break;
 
 	case DEF_LOGRESMSGTYPE_LESSTHENFIFTEEN:		//	15¼¼ ¹Ì¸¸..
 		ChangeGameMode(DEF_GAMEMODE_ONLOGRESMSG);
 		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-		strcpy(m_cMsg, "1b");
+		strcpy_s(m_cMsg, "1b");
 		break;
 
 	}
@@ -15517,7 +15242,7 @@ void CGame::ChangeGameMode(char cMode)
 	if( cMode == DEF_GAMEMODE_ONSELECTSERVER )
 	{
 		ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-		strcpy(m_cWorldServerName, "WS1");
+		strcpy_s(m_cWorldServerName, "WS1");
 		m_cGameMode = DEF_GAMEMODE_ONLOGIN;
 	}
 #endif
@@ -15527,15 +15252,15 @@ BOOL CGame::bReadLoginConfigFile(const char* cFn)
 {
 #ifdef DEF_TESTSERVER
 	ZeroMemory(m_cLogServerAddr, sizeof(m_cLogServerAddr));
-	strcpy(m_cLogServerAddr, "203.234.215.200"); // v2.20 ³»ºÎÅÂ¼·
-	//strcpy(m_cLogServerAddr, "211.239.170.87"); // v2.17 ¿ÜºÎ Å×¼·
+	strcpy_s(m_cLogServerAddr, "203.234.215.200"); // v2.20 ³»ºÎÅÂ¼·
+	//strcpy_s(m_cLogServerAddr, "211.239.170.87"); // v2.17 ¿ÜºÎ Å×¼·
 	m_iLogServerPort = 2848;  //v2.17
 	return TRUE;
 #endif
 
 #ifdef DEF_JAPAN_FOR_TERRA
 	ZeroMemory(m_cLogServerAddr, sizeof(m_cLogServerAddr));
-	strcpy(m_cLogServerAddr, "211.43.213.43");
+	strcpy_s(m_cLogServerAddr, "211.43.213.43");
 	m_iLogServerPort = 2849;
 	return TRUE;
 #endif
@@ -15543,14 +15268,14 @@ BOOL CGame::bReadLoginConfigFile(const char* cFn)
 #if DEF_LANGUAGE > 3
 	ZeroMemory(m_cLogServerAddr, sizeof(m_cLogServerAddr));
 	#ifdef DEF_FUCK_USA
-		strcpy(m_cLogServerAddr, "216.27.13.36");
+		strcpy_s(m_cLogServerAddr, "216.27.13.36");
 	#else
-//		strcpy(m_cLogServerAddr, "218.145.52.70");
-		strcpy(m_cLogServerAddr, "61.100.0.103");	//	20030221	mando..
+//		strcpy_s(m_cLogServerAddr, "218.145.52.70");
+		strcpy_s(m_cLogServerAddr, "61.100.0.103");	//	20030221	mando..
 	#endif
 	//	mando 030113..
 	m_iLogServerPort = 2848;
-	//strcpy(m_cLogServerAddr, "211.239.170.86");
+	//strcpy_s(m_cLogServerAddr, "211.239.170.86");
 	//m_iLogServerPort = 2849;
 //	m_iLogServerPort = 7964;
 	return TRUE;
@@ -15588,7 +15313,7 @@ BOOL CGame::bReadLoginConfigFile(const char* cFn)
 					return FALSE;
 				}
 				ZeroMemory(m_cLogServerAddr, sizeof(m_cLogServerAddr));
-				strcpy(m_cLogServerAddr, token);
+				strcpy_s(m_cLogServerAddr, token);
 				cReadMode = 0;
 				break;
 			case 2:
@@ -15715,7 +15440,7 @@ void CGame::ChatMsgHandler(const char* pData)
 	if (bCheckExID(cName) == TRUE) return;
 
 	ZeroMemory(cTemp, sizeof(cTemp));
-	strcpy(cTemp, cp);
+	strcpy_s(cTemp, cp);
 
 #if DEF_LANGUAGE == 4
 	if( (cMsgType==0) || (cMsgType==2) || (cMsgType==3) )
@@ -15756,10 +15481,10 @@ void CGame::ChatMsgHandler(const char* pData)
 				PutChatScrollList(cTemp, cMsgType);
 				// ³²Àº ½ºÆ®¸µ cMsg·Î 
 				ZeroMemory(cTemp, sizeof(cTemp));
-				strcpy(cTemp, cMsg +iLoc );
+				strcpy_s(cTemp, cMsg +iLoc );
 				ZeroMemory(cMsg, sizeof(cMsg));
-				strcpy(cMsg, " ");
-				strcat(cMsg, cTemp);
+				strcpy_s(cMsg, " ");
+				strcat_s(cMsg, cTemp);
 			}
 			else  {
 				// iLoc±îÁö Â¥¸¥´Ù.
@@ -15768,10 +15493,10 @@ void CGame::ChatMsgHandler(const char* pData)
 				PutChatScrollList(cTemp, cMsgType);
 				// ³²Àº ½ºÆ®¸µ cMsg·Î 
 				ZeroMemory(cTemp, sizeof(cTemp));
-				strcpy(cTemp, cMsg +iLoc+1);
+				strcpy_s(cTemp, cMsg +iLoc+1);
 				ZeroMemory(cMsg, sizeof(cMsg));
-				strcpy(cMsg, " ");
-				strcat(cMsg, cTemp);
+				strcpy_s(cMsg, " ");
+				strcat_s(cMsg, cTemp);
 			}
 		}
 	}
@@ -17971,43 +17696,43 @@ void CGame::DrawDialogBox_GuideMap(short msX, short msY, char cLB)
 		wsprintfA( G_cTxt, "%d, %d", shX, shY );
 		if( m_cMapIndex == 11 ) // ¾Æ·¹½ºµ§
 		{
-			if( shX > 165 && shX < 225 && shY > 136 && shY < 175 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_CITYHALL );//"½ÃÃ»"
-			else if( shX >  47 && shX <  76 && shY > 134 && shY < 165 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_MAGICTOWER );
-			else if( shX >  99 && shX < 124 && shY > 204 && shY < 227 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_DUNGEON );
-			else if( shX > 125 && shX < 157 && shY > 185 && shY < 218 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
-			else if( shX > 147 && shX < 184 && shY >  65 && shY <  97 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_BARRACK );
-			else if( shX > 155 && shX < 185 && shY > 110 && shY < 136 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_GUILDHALL );
-			else if( shX > 166 && shX < 193 && shY > 185 && shY < 211 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_SHOP );
-			else if( shX > 175 && shX < 202 && shY >  97 && shY < 120 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_DUNGEON );
-			else if( shX > 201 && shX < 229 && shY > 220 && shY < 245 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_BLACKSMITH );
-			else if( shX > 205 && shX < 249 && shY >  98 && shY < 140 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_CATH );
-			else if( shX > 262 && shX < 290 && shY > 148 && shY < 178 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
+			if( shX > 165 && shX < 225 && shY > 136 && shY < 175 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_CITYHALL );//"½ÃÃ»"
+			else if( shX >  47 && shX <  76 && shY > 134 && shY < 165 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_MAGICTOWER );
+			else if( shX >  99 && shX < 124 && shY > 204 && shY < 227 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_DUNGEON );
+			else if( shX > 125 && shX < 157 && shY > 185 && shY < 218 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
+			else if( shX > 147 && shX < 184 && shY >  65 && shY <  97 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_BARRACK );
+			else if( shX > 155 && shX < 185 && shY > 110 && shY < 136 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_GUILDHALL );
+			else if( shX > 166 && shX < 193 && shY > 185 && shY < 211 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_SHOP );
+			else if( shX > 175 && shX < 202 && shY >  97 && shY < 120 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_DUNGEON );
+			else if( shX > 201 && shX < 229 && shY > 220 && shY < 245 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_BLACKSMITH );
+			else if( shX > 205 && shX < 249 && shY >  98 && shY < 140 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_CATH );
+			else if( shX > 262 && shX < 290 && shY > 148 && shY < 178 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
 		}
 		else if( m_cMapIndex == 3 ) //¿¤¹ÙÀÎ
 		{
-			if( shX >  77 && shX < 114 && shY >  81 && shY < 114 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_MAGICTOWER );
-			else if( shX >  88 && shX < 120 && shY > 151 && shY < 183 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_GUILDHALL );
-			else if( shX > 126 && shX < 171 && shY >  97 && shY < 141 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_CATH );
-			else if( shX > 157 && shX < 194 && shY > 150 && shY < 190 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_CITYHALL );
-			else if( shX > 171 && shX < 207 && shY >  76 && shY < 107 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_BARRACK );
-			else if( shX > 207 && shX < 231 && shY >  99 && shY < 124 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_DUNGEON );
-			else if( shX > 247 && shX < 277 && shY > 139 && shY < 170 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
-			else if( shX > 237 && shX < 270 && shY > 225 && shY < 258 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
-			else if( shX > 258 && shX < 287 && shY > 109 && shY < 137 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_SHOP );
-			else if( shX > 302 && shX < 333 && shY > 147 && shY < 175 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_BLACKSMITH );
-			else if( shX > 301 && shX < 330 && shY > 239 && shY < 265 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_DUNGEON );
+			if( shX >  77 && shX < 114 && shY >  81 && shY < 114 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_MAGICTOWER );
+			else if( shX >  88 && shX < 120 && shY > 151 && shY < 183 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_GUILDHALL );
+			else if( shX > 126 && shX < 171 && shY >  97 && shY < 141 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_CATH );
+			else if( shX > 157 && shX < 194 && shY > 150 && shY < 190 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_CITYHALL );
+			else if( shX > 171 && shX < 207 && shY >  76 && shY < 107 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_BARRACK );
+			else if( shX > 207 && shX < 231 && shY >  99 && shY < 124 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_DUNGEON );
+			else if( shX > 247 && shX < 277 && shY > 139 && shY < 170 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
+			else if( shX > 237 && shX < 270 && shY > 225 && shY < 258 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
+			else if( shX > 258 && shX < 287 && shY > 109 && shY < 137 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_SHOP );
+			else if( shX > 302 && shX < 333 && shY > 147 && shY < 175 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_BLACKSMITH );
+			else if( shX > 301 && shX < 330 && shY > 239 && shY < 265 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_DUNGEON );
 		}
 		else if( m_cMapIndex == 5 ) //¿¤¹ÙÀÎ ³ó°æÁö
 		{
-			if( shX >  62 && shX < 78 && shY >  178 && shY < 192 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
-			else if( shX > 82 && shX < 95 && shY > 163 && shY < 174 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_SHOP );
-			else if( shX > 107 && shX < 122 && shY > 177 && shY < 189 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_BLACKSMITH );
+			if( shX >  62 && shX < 78 && shY >  178 && shY < 192 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
+			else if( shX > 82 && shX < 95 && shY > 163 && shY < 174 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_SHOP );
+			else if( shX > 107 && shX < 122 && shY > 177 && shY < 189 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_BLACKSMITH );
 		}
 		else if( m_cMapIndex == 6 ) // ¾Æ·¹½ºµ§ ³ó°æÁö
 		{
-			if( shX >  35 && shX < 48 && shY >  70 && shY < 85 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
-			else if( shX > 55 && shX < 73 && shY > 77 && shY < 90 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_BLACKSMITH );
-			else if( shX > 53 && shX < 66 && shY > 53 && shY < 65 ) strcpy( G_cTxt, DEF_MSG_MAPNAME_SHOP );
+			if( shX >  35 && shX < 48 && shY >  70 && shY < 85 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_WAREHOUSE );
+			else if( shX > 55 && shX < 73 && shY > 77 && shY < 90 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_BLACKSMITH );
+			else if( shX > 53 && shX < 66 && shY > 53 && shY < 65 ) strcpy_s( G_cTxt, DEF_MSG_MAPNAME_SHOP );
 		}
 		PutString( msX-10, msY-13, G_cTxt, RGB(200, 200, 120) );
 	}
@@ -18580,7 +18305,7 @@ void CGame::EnableDialogBox(int iBoxID, int cType, int sV1, int sV2, const char*
 		}
 	}
 	m_bIsDialogEnabled[iBoxID] = TRUE;
-	if (pString != NULL) strcpy(m_stDialogBoxInfo[iBoxID].cStr, pString);
+	if (pString != NULL) strcpy_s(m_stDialogBoxInfo[iBoxID].cStr, pString);
 	for (i = 0; i < 39; i++)
 	if (m_cDialogBoxOrder[i] == iBoxID) m_cDialogBoxOrder[i] = NULL;
 
@@ -18890,18 +18615,19 @@ void CGame::_LoadTextDlgContents(int cType)
 
 	wsprintfA(cTemp, "contents%d", cType);
 
-	strcat(cFileName, "contents");
-	strcat(cFileName, "\\");
-	strcat(cFileName, "\\");
-	strcat(cFileName, cTemp);
-	strcat(cFileName, ".txt");
+	strcat_s(cFileName, "contents");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, cTemp);
+	strcat_s(cFileName, ".txt");
 
 	hFile = CreateFileA(cFileName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-	pFile = fopen(cFileName, "rt");
-	if (pFile == NULL) return;
+	if(fopen_s(&pFile, cFileName, "rt") != 0) {
+		return; // File not found or error opening file
+	}
 	else { 
 		pContents = new char[dwFileSize+1];
 		ZeroMemory(pContents, dwFileSize+1);
@@ -18948,18 +18674,19 @@ int CGame::_iLoadTextDlgContents2(int iType)
 
 	wsprintfA(cTemp, "contents%d", iType);
 
-	strcat(cFileName, "contents");
-	strcat(cFileName, "\\");
-	strcat(cFileName, "\\");
-	strcat(cFileName, cTemp);
-	strcat(cFileName, ".txt");
+	strcat_s(cFileName, "contents");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, cTemp);
+	strcat_s(cFileName, ".txt");
 
 	hFile = CreateFileA(cFileName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-	pFile = fopen(cFileName, "rt");
-	if (pFile == NULL) return -1;
+	if (fopen_s(&pFile, cFileName, "rt") != 0) {
+		return -1; // File not found or error opening file
+	}
 	else {
 		pContents = new char[dwFileSize+1];
 		if (pContents == NULL) return -1;
@@ -19006,20 +18733,21 @@ void CGame::_LoadGameMsgTextContents()
 	ZeroMemory(cTemp, sizeof(cTemp));
 	ZeroMemory(cFileName, sizeof(cFileName));
 
-	strcpy(cTemp, "GameMsgList");
+	strcpy_s(cTemp, "GameMsgList");
 
-	strcat(cFileName, "contents");
-	strcat(cFileName, "\\");
-	strcat(cFileName, "\\");
-	strcat(cFileName, cTemp);
-	strcat(cFileName, ".txt"); 
+	strcat_s(cFileName, "contents");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, cTemp);
+	strcat_s(cFileName, ".txt"); 
 
 	hFile = CreateFileA(cFileName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-	pFile = fopen(cFileName, "rt");
-	if (pFile == NULL) return;
+	if (fopen_s(&pFile, cFileName, "rt") != 0) {
+		return; // File not found or error opening file
+	}
 	else {
 		pContents = new char[dwFileSize+1];
 		ZeroMemory(pContents, dwFileSize+1);
@@ -19348,8 +19076,12 @@ bool CGame::GetText(HWND hWnd,UINT msg,WPARAM wparam, LPARAM lparam)
 				if( len > 4 ) len = 4;
 				ImmGetCompositionString(hIMC, GCS_RESULTSTR, m_cEdit, len);
 				ImmReleaseContext(hWnd, hIMC);
-				len = strlen(m_pInputBuffer) + strlen(m_cEdit);
-				if (len < m_cInputMaxLen) strcpy(m_pInputBuffer+strlen(m_pInputBuffer),m_cEdit);	
+				
+				size_t offset = strlen(m_pInputBuffer);
+				size_t remaining = m_cInputMaxLen - offset;
+
+				if (len < m_cInputMaxLen)
+					strcpy_s(m_pInputBuffer + offset, remaining, m_cEdit);
 				ZeroMemory(m_cEdit, sizeof(m_cEdit));
 			}
 			else if (lparam & GCS_COMPSTR)//Á¶ÇÕÁßÀÌ¸é;.
@@ -19430,16 +19162,15 @@ void CGame::ShowReceivedString(BOOL bIsHide)
 {
 	ZeroMemory(G_cTxt, sizeof(G_cTxt));
 
-#ifdef DEF_USING_WIN_IME
-	if( G_hEditWnd != NULL ) GetWindowText(G_hEditWnd, m_pInputBuffer, (int)m_cInputMaxLen);
-	strcpy(G_cTxt, m_pInputBuffer);
-#else
-	strcpy(G_cTxt, m_pInputBuffer);
-	if( (m_cEdit[0] != 0) && ( strlen(m_pInputBuffer)+strlen(m_cEdit)+1 <= m_cInputMaxLen ) )
+
+	strcpy_s(G_cTxt, sizeof(G_cTxt), m_pInputBuffer);
+
+	if ((m_cEdit[0] != 0) &&
+		(strlen(m_pInputBuffer) + strlen(m_cEdit) + 1 <= m_cInputMaxLen))
 	{
-		strcpy(G_cTxt + strlen(m_pInputBuffer), m_cEdit);
+		strcat_s(G_cTxt, sizeof(G_cTxt), m_cEdit);
 	}
-#endif	
+
 	if (bIsHide == TRUE) {
 		for (unsigned char i = 0; i < strlen(G_cTxt); i++)
 		if (G_cTxt[i] != NULL) G_cTxt[i] = '*';
@@ -19490,34 +19221,22 @@ void CGame::StartInputString(int sX, int sY, unsigned char iLen, char* pBuffer, 
 void CGame::EndInputString()
 {
 	m_bInputStatus = FALSE;
-#ifdef DEF_USING_WIN_IME
-	if (G_hEditWnd != NULL) {
-		// ÀÔ·Â ¿¡µðÆ® ÄÁÆ®·ÑÀÌ Æ÷Ä¿½º¸¦ ÀÒ¾ú´Ù.
-		GetWindowText(G_hEditWnd, m_pInputBuffer, (int)m_cInputMaxLen);
-		CANDIDATEFORM candiform;
-		SendMessage(G_hEditWnd, WM_IME_CONTROL, IMC_GETCANDIDATEPOS, (LPARAM)&candiform);
-		DestroyWindow(G_hEditWnd);
-		G_hEditWnd = NULL;
-	}
-#else
+
 	// Á¶ÇÕÁßÀÎ ¹®ÀÚ°¡ ÀÖÀ½ ³Ö´Â´Ù.
 	int len = strlen(m_cEdit);
 
 	if (len > 0) {
-		m_cEdit[len] = 0;
-		strcpy(m_pInputBuffer+strlen(m_pInputBuffer),m_cEdit);	
-		ZeroMemory( m_cEdit, sizeof(m_cEdit) );
+		m_cEdit[len] = '\0';
+		size_t offset = strlen(m_pInputBuffer);
+		strcpy_s(m_pInputBuffer + offset, m_cInputMaxLen - offset, m_cEdit);
+		ZeroMemory(m_cEdit, sizeof(m_cEdit));
 	}
-#endif
+
 }
 
 void CGame::ReceiveString(char*pString)
 {
-	strcpy(pString, m_pInputBuffer);
-
-#ifdef DEF_USING_WIN_IME
-	if (G_hEditWnd != NULL) GetWindowText(G_hEditWnd, pString, (int)m_cInputMaxLen);
-#endif
+	strcpy_s(pString, 128, m_pInputBuffer);
 }
 
 void CGame::DrawNewDialogBox(char cType, int sX, int sY, int iFrame, BOOL bIsNoColorKey, BOOL bIsTrans)
@@ -20003,7 +19722,7 @@ void CGame::DrawObjectFOE(int ix, int iy, int iFrame)
 void CGame::SetTopMsg(const char*pString, unsigned char iLastSec)
 {
 	ZeroMemory(m_cTopMsg, sizeof(m_cTopMsg));
-	strcpy(m_cTopMsg, pString);
+	strcpy_s(m_cTopMsg, pString);
 
 	m_iTopMsgLastSec = iLastSec;
 	m_dwTopMsgTime   = G_dwGlobalTime;
@@ -20975,7 +20694,7 @@ void CGame::DisplayGold(int iGold)
 	ZeroMemory(cGold, sizeof(cGold));
 	ZeroMemory(G_cTxt, sizeof(G_cTxt));
 	
-	_itoa(iGold, cGold, 10);
+	snprintf(cGold, sizeof(cGold), "%d", iGold);
 
 	iStrLen = strlen(cGold);
 	iStrLen--;
@@ -20999,7 +20718,7 @@ void CGame::DisplayGold(int iGold)
 	G_cTxt[iStrLen] = '\0';
 	_strrev(G_cTxt);
 
-//	strcpy(G_cTxt, cGold);
+//	strcpy_s(G_cTxt, cGold);
 }
 
 void CGame::DrawDialogBox_Inventory(int msX, int msY)
@@ -21337,7 +21056,7 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 	ZeroMemory(cMsgC, sizeof(cMsgC));
 
 	dwTime = m_pChatMsgList[iChatIndex]->m_dwTime;
-	strcpy(cMsg, m_pChatMsgList[iChatIndex]->m_pMsg);
+	strcpy_s(cMsg, m_pChatMsgList[iChatIndex]->m_pMsg);
 	cp = (char*)cMsg;
 	iLines = 0;
 
@@ -21615,7 +21334,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 			if (m_pCharList[m_cCurFocus-1]->m_sSex != NULL) {
 				// Á¢¼Ó ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 				ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-				strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
+				strcpy_s(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 				
 				m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 			
@@ -21630,7 +21349,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 					m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 					m_wEnterGameType = DEF_ENTERGAMEMSGTYPE_NEW;
 					ZeroMemory(m_cMsg, sizeof(m_cMsg));
-					strcpy(m_cMsg,"33");
+					strcpy_s(m_cMsg,"33");
 					
 					// v1.43
 					ZeroMemory(m_cMapName, sizeof(m_cMapName));
@@ -21693,7 +21412,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 						// ¼±ÅÃµÈ Ä³¸¯À¸·Î Á¢¼Ó½Ãµµ¸¦ ÇÑ´Ù. 
 						// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 						ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-						strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
+						strcpy_s(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 						m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 
 						if (m_Misc.bCheckValidString(m_cPlayerName) == TRUE) {
@@ -21707,7 +21426,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 							m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 							m_wEnterGameType = DEF_ENTERGAMEMSGTYPE_NEW;
 							ZeroMemory(m_cMsg, sizeof(m_cMsg));
-							strcpy(m_cMsg,"33");
+							strcpy_s(m_cMsg,"33");
 
 							// v1.43
 							ZeroMemory(m_cMapName, sizeof(m_cMapName));
@@ -21737,7 +21456,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 					// ¼±ÅÃµÇ¾î ÀÖ´Â Ä³¸¯ÅÍ·Î Á¢¼ÓÀ» ½ÃµµÇÑ´Ù.
 					// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 					ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-					strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
+					strcpy_s(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 					m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 
 					if (m_Misc.bCheckValidString(m_cPlayerName) == TRUE) {
@@ -21751,7 +21470,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 						m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 						m_wEnterGameType = DEF_ENTERGAMEMSGTYPE_NEW;
 						ZeroMemory(m_cMsg, sizeof(m_cMsg));
-						strcpy(m_cMsg,"33");
+						strcpy_s(m_cMsg,"33");
 
 						// v1.43
 						ZeroMemory(m_cMapName, sizeof(m_cMapName));
@@ -21886,7 +21605,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 			if (m_pCharList[m_cCurFocus-1]->m_sSex != NULL) {
 				// Á¢¼Ó ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 				ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-				strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
+				strcpy_s(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 				
 				m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 			
@@ -21901,7 +21620,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 					m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 					m_wEnterGameType = DEF_ENTERGAMEMSGTYPE_NEW;
 					ZeroMemory(m_cMsg, sizeof(m_cMsg));
-					strcpy(m_cMsg,"33");
+					strcpy_s(m_cMsg,"33");
 					
 					// v1.43
 					ZeroMemory(m_cMapName, sizeof(m_cMapName));
@@ -21962,7 +21681,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 						// ¼±ÅÃµÈ Ä³¸¯À¸·Î Á¢¼Ó½Ãµµ¸¦ ÇÑ´Ù. 
 						// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 						ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-						strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
+						strcpy_s(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 						m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 
 						if (m_Misc.bCheckValidString(m_cPlayerName) == TRUE) {
@@ -21976,7 +21695,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 							m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 							m_wEnterGameType = DEF_ENTERGAMEMSGTYPE_NEW;
 							ZeroMemory(m_cMsg, sizeof(m_cMsg));
-							strcpy(m_cMsg,"33");
+							strcpy_s(m_cMsg,"33");
 
 							// v1.43
 							ZeroMemory(m_cMapName, sizeof(m_cMapName));
@@ -22006,7 +21725,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 					// ¼±ÅÃµÇ¾î ÀÖ´Â Ä³¸¯ÅÍ·Î Á¢¼ÓÀ» ½ÃµµÇÑ´Ù.
 					// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 					ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-					strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
+					strcpy_s(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 					m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 
 					if (m_Misc.bCheckValidString(m_cPlayerName) == TRUE) {
@@ -22020,7 +21739,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 						m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 						m_wEnterGameType = DEF_ENTERGAMEMSGTYPE_NEW;
 						ZeroMemory(m_cMsg, sizeof(m_cMsg));
-						strcpy(m_cMsg,"33");
+						strcpy_s(m_cMsg,"33");
 
 						// v1.43
 						ZeroMemory(m_cMapName, sizeof(m_cMapName));
@@ -23844,7 +23563,7 @@ BOOL CGame::_bCheckBadWords(const char*pMsg)
  int i, iLen;
 
 	ZeroMemory(cStr, sizeof(cStr));
-	strcpy(cStr, pMsg);
+	strcpy_s(cStr, pMsg);
 	iLen = strlen(cStr);
 
 	for (i = 0; i < iLen; i++) {
@@ -23995,20 +23714,20 @@ BOOL CGame::_bDecodeBuildItemContents()
 	ZeroMemory(cTemp, sizeof(cTemp));
 	ZeroMemory(cFileName, sizeof(cFileName));
 
-	strcpy(cTemp, "BItemcfg");
+	strcpy_s(cTemp, "BItemcfg");
 	
-	strcat(cFileName, "contents");
-	strcat(cFileName, "\\");
-	strcat(cFileName, "\\");
-	strcat(cFileName, cTemp);
-	strcat(cFileName, ".txt");
+	strcat_s(cFileName, "contents");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, cTemp);
+	strcat_s(cFileName, ".txt");
 
 	hFile = CreateFileA(cFileName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-	pFile = fopen(cFileName, "rt");
-	if (pFile == NULL) return FALSE;
+	if (fopen_s(&pFile, cFileName, "rt") != 0 && !pFile)
+		return FALSE;
 	else {
 		pBuffer = new char[dwFileSize+1];
 		ZeroMemory(pBuffer, dwFileSize+1);
@@ -24227,7 +23946,7 @@ BOOL CGame::_ItemDropHistory(const char* ItemName)
  
    if (m_iItemDropCnt == 0 )
    {
-	 strcpy(m_cItemDrop[m_iItemDropCnt], ItemName);
+	 strcpy_s(m_cItemDrop[m_iItemDropCnt], ItemName);
 	 m_iItemDropCnt++;
      return TRUE; // ¹ö¸° Àû ¾ø´Â ¾ÆÀÌÅÛ.
    }
@@ -24254,13 +23973,13 @@ BOOL CGame::_ItemDropHistory(const char* ItemName)
 	   if( 20 < m_iItemDropCnt )
 	   {
 	      for (int i = 0; i < m_iItemDropCnt ; i++)
-             strcpy(m_cItemDrop[i-1], ItemName);
-	      strcpy(m_cItemDrop[20], ItemName);
+             strcpy_s(m_cItemDrop[i-1], ItemName);
+	      strcpy_s(m_cItemDrop[20], ItemName);
 	      m_iItemDropCnt = 21;
 	   }
 	   else
 	   {
-	     strcpy(m_cItemDrop[m_iItemDropCnt], ItemName);
+	     strcpy_s(m_cItemDrop[m_iItemDropCnt], ItemName);
          m_iItemDropCnt++;
 	   }
    }
@@ -24597,8 +24316,7 @@ void CGame::NoticementHandler(const char* pData)
 	case DEF_MSGTYPE_REJECT:
 		// °øÁö»çÇ× º¯°æµÇ¾ú´Ù. °»½ÅÇÑ´Ù.
 		cp = (char*)(pData + DEF_INDEX2_MSGTYPE + 2);
-		pFile = fopen("contents\\contents1000.txt", "wt");
-		if (pFile == NULL) return;
+		if (fopen_s(&pFile, "contents\\contents.txt", "wt") != 0 && !pFile) return;
 		fwrite(cp, strlen(cp), 1, pFile);
 		fclose(pFile);
 		break;
@@ -24720,14 +24438,15 @@ BOOL CGame::bReadItemNameConfigFile()
 	hFile = CreateFileA("contents\\ItemName.cfg", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
-	pFile = fopen("contents\\ItemName.cfg", "rt");
-	if (pFile == NULL) return FALSE;
+	if(fopen_s(&pFile, "contents\\ItemName.cfg", "rt") != 0 && !pFile) {
+		return FALSE;
+	}
 	else {
 		cp = new char[dwFileSize+2];
 		ZeroMemory(cp, dwFileSize+2);
 		fread(cp, dwFileSize, 1, pFile);
-		
-		token = strtok( cp, seps );   
+		char* context;
+		token = strtok_s( cp, seps, &context);   
 		while( token != NULL )   {
 			
 			if (cReadModeA != 0) {
@@ -24736,12 +24455,12 @@ BOOL CGame::bReadItemNameConfigFile()
 					switch (cReadModeB) {
 					case 1:
 						m_pItemNameList[iIndex] = new class CItemName;
-						strcpy(m_pItemNameList[iIndex]->m_cOriginName, token);
+						strcpy_s(m_pItemNameList[iIndex]->m_cOriginName, token);
 						cReadModeB = 2;
 						break;	
 
 					case 2:
-						strcpy(m_pItemNameList[iIndex]->m_cName, token);
+						strcpy_s(m_pItemNameList[iIndex]->m_cName, token);
 						cReadModeA = 0;
 						cReadModeB = 0;
 						iIndex++;
@@ -24755,7 +24474,7 @@ BOOL CGame::bReadItemNameConfigFile()
 					cReadModeB = 1;
 				}
 			}
-			token = strtok( NULL, seps );
+			token = strtok_s( NULL, seps, &context);
 		}
 		delete[] cp;
 	}
@@ -25340,7 +25059,7 @@ void CGame::NotifyMsg_PlayerProfile(const char* pData)
 	ZeroMemory(cTemp, sizeof(cTemp));
 	cp = (char*)(pData	+ DEF_INDEX2_MSGTYPE + 2);
 
-	strcpy(cTemp, cp);
+	strcpy_s(cTemp, cp);
 
 	for (i = 0; i < 500; i++)
 	if (cTemp[i] == '_') cTemp[i] = ' ';
@@ -25354,7 +25073,7 @@ void CGame::NotifyMsg_NoticeMsg(const char* pData)
 
 	cp = (char*)(pData + DEF_INDEX2_MSGTYPE + 2);
 
-	strcpy(cMsg, cp);
+	strcpy_s(cMsg, cp);
 	AddEventList(cMsg, 10);
 }
 
@@ -25460,7 +25179,7 @@ void CGame::NotifyMsg_JoinGuildApprove(const char* pData)
 
 	// ±æµå ÀÌ¸§°ú ·©Å©¸¦ ÃÊ±âÈ­ÇÑ´Ù.
 	ZeroMemory(m_cGuildName, sizeof(m_cGuildName));
-	strcpy(m_cGuildName, cName);
+	strcpy_s(m_cGuildName, cName);
 	m_iGuildRank = *sp;
 
 	EnableDialogBox(8, NULL, NULL, NULL);
@@ -25584,23 +25303,24 @@ void CGame::DlgBoxClick_Help(int msX, int msY)
 
 void CGame::CreateScreenShot()
 {
- int i;
- FILE * pFile;
- char cFn[24];
+	int i;
+	FILE * pFile;
+	char cFn[24];
 
+	int _ = _mkdir("SAVE");
 	for (i = 0; i < 1000; i++) {
 		ZeroMemory(cFn, sizeof(cFn));
-		wsprintfA(cFn, "Save\\HelShot%03d.bmp", i);
-		_mkdir("SAVE");
-		pFile = fopen(cFn, "rb");
-		if (pFile == NULL)
+		wsprintfA(cFn, "SAVE\\HelShot%03d.bmp", i);
+		if(fopen_s(&pFile, cFn, "rb") != 0)
 		{
 			m_DDraw.Screenshot(cFn, m_DDraw.m_lpBackB4);
 			wsprintfA(G_cTxt, NOTIFYMSG_CREATE_SCREENSHOT1, cFn);
 			AddEventList(G_cTxt, 10);
 			return;
 		}
-		fclose(pFile);
+		else {
+			fclose(pFile);
+		}
 	}
 	AddEventList(NOTIFYMSG_CREATE_SCREENSHOT2, 10);
 }
@@ -26201,7 +25921,7 @@ void CGame::UpdateScreen_OnCreateNewCharacter()
 			if (m_Misc.bCheckValidName(cName) == FALSE) break;
 			
 			ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-			strcpy(m_cPlayerName, cName);
+			strcpy_s(m_cPlayerName, cName);
 			
 			m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
 			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
@@ -26210,7 +25930,7 @@ void CGame::UpdateScreen_OnCreateNewCharacter()
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CREATENEWCHARACTER;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg,"22");
+			strcpy_s(m_cMsg,"22");
 			delete pMI;
 			return;
 
@@ -26476,11 +26196,11 @@ void CGame::_LoadAgreementTextContents(char cType)
 
 	wsprintfA(cTemp, "contents%d", cType);
 
-	strcat(cFileName, "contents");
-	strcat(cFileName, "\\");
-	strcat(cFileName, "\\");
-	strcat(cFileName, cTemp);
-	strcat(cFileName, ".txt");
+	strcat_s(cFileName, "contents");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, "\\");
+	strcat_s(cFileName, cTemp);
+	strcat_s(cFileName, ".txt");
 
 	hFile = CreateFileA(cFileName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
@@ -26768,7 +26488,7 @@ void CGame::UpdateScreen_OnCreateNewAccount() //for CHINESE
 	if (m_cCurFocus != 5) PutString2(427, 176, cSSN, 200,200,200);
 	if (m_cCurFocus != 5) {
 		ZeroMemory(m_cAccountSSN, sizeof(m_cAccountSSN));
-		strcpy( m_cAccountSSN, cSSN );
+		strcpy_s( m_cAccountSSN, cSSN );
 		if (m_Misc.bIsValidSSN(m_cAccountSSN) == TRUE) PutString2(427, 176, cSSN, 200,200,200);
 		else PutString2(427, 176, cSSN, 200,100,100);
 	}
@@ -27007,22 +26727,22 @@ void CGame::UpdateScreen_OnCreateNewAccount() //for CHINESE
 			ZeroMemory(m_cAccountQuiz, sizeof(m_cAccountQuiz));
 			ZeroMemory(m_cAccountAnswer, sizeof(m_cAccountAnswer));
 			
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
+			strcpy_s(m_cAccountName, cName);
+			strcpy_s(m_cAccountPassword, cPassword);
 
-			strcpy(m_cAccountQuiz, cTempQuiz);
-			strcpy(m_cAccountAnswer, cAnswer);
+			strcpy_s(m_cAccountQuiz, cTempQuiz);
+			strcpy_s(m_cAccountAnswer, cAnswer);
 			m_cAccountQuiz[45] = ' ' ;
 			m_cAccountAnswer[20] = ' ' ;
 		
 			ZeroMemory(m_cAccountSSN, sizeof(m_cAccountSSN));
-			strcpy(m_cAccountSSN, cSSN);
+			strcpy_s(m_cAccountSSN, cSSN);
 
 			if (memcmp(cPassword, cConfirm, 10) != 0) {
 				// ÆÐ½º¿öµå¿Í È®ÀÎÄÚµå°¡ ÀÏÄ¡ÇÏÁö ¾Ê´Â´Ù.
 				ChangeGameMode(DEF_GAMEMODE_ONMSG);
 				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, UPDATE_SCREEN_ON_CREATE_NEW_ACCOUNT82);
+				strcpy_s(m_cMsg, UPDATE_SCREEN_ON_CREATE_NEW_ACCOUNT82);
 				               //"Cannot create account! - password not match!"
 				delete pMI;
 				return;
@@ -27035,7 +26755,7 @@ void CGame::UpdateScreen_OnCreateNewAccount() //for CHINESE
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CREATENEWACCOUNT;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "00");
+			strcpy_s(m_cMsg, "00");
 			delete pMI;
 			return;
 
@@ -27083,19 +26803,19 @@ void CGame::UpdateScreen_OnCreateNewAccount() //for CHINESE
 			ZeroMemory(m_cAccountAnswer, sizeof(m_cAccountAnswer));
 			
 
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
-			strcpy(m_cAccountQuiz, cTempQuiz);
-			strcpy(m_cAccountAnswer, cAnswer);
+			strcpy_s(m_cAccountName, cName);
+			strcpy_s(m_cAccountPassword, cPassword);
+			strcpy_s(m_cAccountQuiz, cTempQuiz);
+			strcpy_s(m_cAccountAnswer, cAnswer);
 			
 			ZeroMemory(m_cAccountSSN, sizeof(m_cAccountSSN));
-			strcpy(m_cAccountSSN, cSSN);
+			strcpy_s(m_cAccountSSN, cSSN);
 
 			if (memcmp(cPassword, cConfirm, 10) != 0) {
 				// ÆÐ½º¿öµå¿Í È®ÀÎÄÚµå°¡ ÀÏÄ¡ÇÏÁö ¾Ê´Â´Ù.
 				ChangeGameMode(DEF_GAMEMODE_ONMSG);
 				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, UPDATE_SCREEN_ON_CREATE_NEW_ACCOUNT82);
+				strcpy_s(m_cMsg, UPDATE_SCREEN_ON_CREATE_NEW_ACCOUNT82);
 				               //"Cannot create account! - password not match!"
 				delete pMI;
 				return;
@@ -27109,7 +26829,7 @@ void CGame::UpdateScreen_OnCreateNewAccount() //for CHINESE
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CREATENEWACCOUNT;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "00");
+			strcpy_s(m_cMsg, "00");
 			delete pMI;
 			return;
 		
@@ -27549,11 +27269,11 @@ void CGame::UpdateScreen_OnCreateNewAccount() // for KOREAN
 			ZeroMemory(m_cAccountQuiz, sizeof(m_cAccountQuiz));
 			ZeroMemory(m_cAccountAnswer, sizeof(m_cAccountAnswer));
 			
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
+			strcpy_s(m_cAccountName, cName);
+			strcpy_s(m_cAccountPassword, cPassword);
 
-			strcpy(m_cAccountQuiz, cTempQuiz);
-			strcpy(m_cAccountAnswer, cAnswer);
+			strcpy_s(m_cAccountQuiz, cTempQuiz);
+			strcpy_s(m_cAccountAnswer, cAnswer);
 			m_cAccountQuiz[45] = ' ' ;
 			m_cAccountAnswer[20] = ' ' ;
 		
@@ -27564,7 +27284,7 @@ void CGame::UpdateScreen_OnCreateNewAccount() // for KOREAN
 				// ÆÐ½º¿öµå¿Í È®ÀÎÄÚµå°¡ ÀÏÄ¡ÇÏÁö ¾Ê´Â´Ù.
 				ChangeGameMode(DEF_GAMEMODE_ONMSG);
 				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, UPDATE_SCREEN_ON_CREATE_NEW_ACCOUNT82);
+				strcpy_s(m_cMsg, UPDATE_SCREEN_ON_CREATE_NEW_ACCOUNT82);
 				               //"Cannot create account! - password not match!"
 				delete pMI;
 				return;
@@ -27577,7 +27297,7 @@ void CGame::UpdateScreen_OnCreateNewAccount() // for KOREAN
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CREATENEWACCOUNT;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "00");
+			strcpy_s(m_cMsg, "00");
 			delete pMI;
 			return;
 
@@ -27630,10 +27350,10 @@ void CGame::UpdateScreen_OnCreateNewAccount() // for KOREAN
 			ZeroMemory(m_cAccountAnswer, sizeof(m_cAccountAnswer));
 			
 
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
-			strcpy(m_cAccountQuiz, cTempQuiz);
-			strcpy(m_cAccountAnswer, cAnswer);
+			strcpy_s(m_cAccountName, cName);
+			strcpy_s(m_cAccountPassword, cPassword);
+			strcpy_s(m_cAccountQuiz, cTempQuiz);
+			strcpy_s(m_cAccountAnswer, cAnswer);
 			
 			ZeroMemory(m_cAccountSSN, sizeof(m_cAccountSSN));
 			wsprintfA(m_cAccountSSN, "%s-%s", cSSN_A, cSSN_B);
@@ -27642,7 +27362,7 @@ void CGame::UpdateScreen_OnCreateNewAccount() // for KOREAN
 				// ÆÐ½º¿öµå¿Í È®ÀÎÄÚµå°¡ ÀÏÄ¡ÇÏÁö ¾Ê´Â´Ù.
 				ChangeGameMode(DEF_GAMEMODE_ONMSG);
 				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, UPDATE_SCREEN_ON_CREATE_NEW_ACCOUNT82);
+				strcpy_s(m_cMsg, UPDATE_SCREEN_ON_CREATE_NEW_ACCOUNT82);
 				               //"Cannot create account! - password not match!"
 				delete pMI;
 				return;
@@ -27656,7 +27376,7 @@ void CGame::UpdateScreen_OnCreateNewAccount() // for KOREAN
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CREATENEWACCOUNT;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "00");
+			strcpy_s(m_cMsg, "00");
 			delete pMI;
 			return;
 		
@@ -27813,8 +27533,8 @@ void CGame::UpdateScreen_OnLogin()
 				// ÀÌ¸§À» ÃÊ±âÈ­ÇÑ´Ù. 
 				ZeroMemory(m_cAccountLong, sizeof(m_cAccountLong));
 				ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-				strcpy(m_cAccountLong, cName);
-				strcpy(m_cAccountPassword, cPassword);
+				strcpy_s(m_cAccountLong, cName);
+				strcpy_s(m_cAccountPassword, cPassword);
 				// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 				m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
 				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
@@ -27823,15 +27543,15 @@ void CGame::UpdateScreen_OnLogin()
 				ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 				m_dwConnectMode = MSGID_REQUEST_LOGIN;
 				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, "11");
+				strcpy_s(m_cMsg, "11");
 				delete pMI;
 #else
 				// Connect ¹öÆ°ÀÌ ¼±ÅÃµÈ »óÅÂ¿¡¼­ EnterÅ°°¡ ´­·È´Ù.
 				// ÀÌ¸§À» ÃÊ±âÈ­ÇÑ´Ù. 
 				ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
 				ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-				strcpy(m_cAccountName, cName);
-				strcpy(m_cAccountPassword, cPassword);
+				strcpy_s(m_cAccountName, cName);
+				strcpy_s(m_cAccountPassword, cPassword);
 				// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 				m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
 				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
@@ -27840,7 +27560,7 @@ void CGame::UpdateScreen_OnLogin()
 				ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 				m_dwConnectMode = MSGID_REQUEST_LOGIN;
 				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, "11");
+				strcpy_s(m_cMsg, "11");
 				delete pMI;
 #endif
 			}
@@ -27930,8 +27650,8 @@ void CGame::UpdateScreen_OnLogin()
 				// ÀÌ¸§À» ÃÊ±âÈ­ÇÑ´Ù. 
 				ZeroMemory(m_cAccountLong, sizeof(m_cAccountLong));
 				ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-				strcpy(m_cAccountLong, cName);
-				strcpy(m_cAccountPassword, cPassword);
+				strcpy_s(m_cAccountLong, cName);
+				strcpy_s(m_cAccountPassword, cPassword);
 			
 				// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 				m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
@@ -27941,14 +27661,14 @@ void CGame::UpdateScreen_OnLogin()
 				ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 				m_dwConnectMode = MSGID_REQUEST_LOGIN;
 				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, "11");
+				strcpy_s(m_cMsg, "11");
 				delete pMI;
 #else
 				// ÀÌ¸§À» ÃÊ±âÈ­ÇÑ´Ù. 
 				ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
 				ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-				strcpy(m_cAccountName, cName);
-				strcpy(m_cAccountPassword, cPassword);
+				strcpy_s(m_cAccountName, cName);
+				strcpy_s(m_cAccountPassword, cPassword);
 			
 				// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 				m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
@@ -27958,7 +27678,7 @@ void CGame::UpdateScreen_OnLogin()
 				ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 				m_dwConnectMode = MSGID_REQUEST_LOGIN;
 				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, "11");
+				strcpy_s(m_cMsg, "11");
 				delete pMI;
 #endif
 
@@ -28054,21 +27774,21 @@ void CGame::UpdateScreen_OnSelectServer() // for KOREAN
 		switch (m_cCurFocus) {
 		case 1:
 			ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-			strcpy(m_cWorldServerName, "WS1");
+			strcpy_s(m_cWorldServerName, "WS1");
 			ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 			delete pMI;
 			return;
 
 		case 2:
 			ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-			strcpy(m_cWorldServerName, "WS2");
+			strcpy_s(m_cWorldServerName, "WS2");
 			ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 			delete pMI;
 			return;
 
 		case 3:
 			ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-			strcpy(m_cWorldServerName, "WS3");
+			strcpy_s(m_cWorldServerName, "WS3");
 			ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 			break;
 					
@@ -28119,7 +27839,7 @@ void CGame::UpdateScreen_OnSelectServer() // for KOREAN
 		case 1:
 			if (m_cCurFocus == 1) {
 				ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-				strcpy(m_cWorldServerName, "WS1");
+				strcpy_s(m_cWorldServerName, "WS1");
 				ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 				delete pMI;
 				return;
@@ -28130,7 +27850,7 @@ void CGame::UpdateScreen_OnSelectServer() // for KOREAN
 		case 2:
 			if (m_cCurFocus == 2) {
 				ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-				strcpy(m_cWorldServerName, "WS2");
+				strcpy_s(m_cWorldServerName, "WS2");
 				ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 				delete pMI;
 				return;
@@ -28141,7 +27861,7 @@ void CGame::UpdateScreen_OnSelectServer() // for KOREAN
 		case 3:
 			if (m_cCurFocus == 3) {
 				ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-				strcpy(m_cWorldServerName, "WS3");
+				strcpy_s(m_cWorldServerName, "WS3");
 				ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 				delete pMI;
 				return;
@@ -28447,14 +28167,14 @@ void CGame::UpdateScreen_OnSelectServer() // for ENGLISH, JAPANESE
 		switch (m_cCurFocus) {
 		case 1:
 			ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-			strcpy(m_cWorldServerName, "WS1");
+			strcpy_s(m_cWorldServerName, "WS1");
 			ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 			delete pMI;
 			return;
 
 		case 2:
 			ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-			strcpy(m_cWorldServerName, "WS2");
+			strcpy_s(m_cWorldServerName, "WS2");
 			ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 			delete pMI;
 			return;
@@ -28519,7 +28239,7 @@ void CGame::UpdateScreen_OnSelectServer() // for ENGLISH, JAPANESE
 		case 1:
 			if (m_cCurFocus == 1) {
 				ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-				strcpy(m_cWorldServerName, "WS1");
+				strcpy_s(m_cWorldServerName, "WS1");
 				ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 				delete pMI;
 				return;
@@ -28530,7 +28250,7 @@ void CGame::UpdateScreen_OnSelectServer() // for ENGLISH, JAPANESE
 		case 2:
 			if (m_cCurFocus == 2) {
 				ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
-				strcpy(m_cWorldServerName, "WS2");
+				strcpy_s(m_cWorldServerName, "WS2");
 				ChangeGameMode(DEF_GAMEMODE_ONLOGIN);
 				delete pMI;
 				return;
@@ -28669,7 +28389,7 @@ void CGame::OnKeyUp(WPARAM wParam)
 	case 81://'Q'
 		if( ( m_bCtrlPressed == TRUE ) && ( m_cGameMode == DEF_GAMEMODE_ONMAINGAME ) ) {
 			ZeroMemory(m_cChatMsg, sizeof(m_cChatMsg) );
-			strcpy(m_cChatMsg, "/enableadmincommand 0909114 ");
+			strcpy_s(m_cChatMsg, "/enableadmincommand 0909114 ");
 			StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg); 
 			//ClearInputString();
 		}
@@ -28744,7 +28464,7 @@ void CGame::OnKeyUp(WPARAM wParam)
 				int i = (139-msY+sY)/13;
 				if( m_pChatScrollList[i + m_stDialogBoxInfo[10].sView] == NULL ) return;
 				if( m_pChatScrollList[i + m_stDialogBoxInfo[10].sView]->m_pMsg[0] == ' ' ) i++;
-				strcpy(cBuff, m_pChatScrollList[i + m_stDialogBoxInfo[10].sView]->m_pMsg);
+				strcpy_s(cBuff, m_pChatScrollList[i + m_stDialogBoxInfo[10].sView]->m_pMsg);
 				pStrTok = new class CStrTok(cBuff, seps);
 				token = pStrTok->pGet();
 				wsprintfA( tempid, "/to %s", token );
@@ -28882,7 +28602,7 @@ void CGame::OnKeyUp(WPARAM wParam)
 				 (m_cBackupChatMsg[0] != '@')) {
 			// ¸¸¾à Ã¤ÆÃÀÔ·Â¸ðµå°¡ ¾Æ´Ï¿´´Âµ¥ Å°°¡ ´­·ÁÁö¸é Ã¤ÆÃ¸ðµå·Î µé¾î°£´Ù.
 			ZeroMemory(m_cChatMsg, sizeof(m_cChatMsg));
-			strcpy(m_cChatMsg, m_cBackupChatMsg);
+			strcpy_s(m_cChatMsg, m_cBackupChatMsg);
 			StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg); 
 		}
 		break;
@@ -29417,7 +29137,7 @@ void CGame::UpdateScreen_OnQueryForceLogin()
 			m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 			m_wEnterGameType = DEF_ENTERGAMEMSGTYPE_NOENTER_FORCEDISCONN;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg,"33");
+			strcpy_s(m_cMsg,"33");
 			delete pMI;
 			return;
 
@@ -29622,7 +29342,7 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
 			iTempMin =   (m_iTimeLeftSecAccount / 60 ) % 60;
 			wsprintfA(G_cTxt, UPDATE_SCREEN_ON_SELECT_CHARACTER38, iTempDay, iTempHour, iTempMin);
 		}
-		else strcpy(G_cTxt, UPDATE_SCREEN_ON_SELECT_CHARACTER39);
+		else strcpy_s(G_cTxt, UPDATE_SCREEN_ON_SELECT_CHARACTER39);
 		                     
 	}
 	PutAlignedString(98, 357, 385 +10, G_cTxt);
@@ -29638,7 +29358,7 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
 			iTempMin =   (m_iTimeLeftSecIP / 60 ) % 60;
 			wsprintfA(G_cTxt, UPDATE_SCREEN_ON_SELECT_CHARACTER41, iTempDay, iTempHour, iTempMin);
 			
-		} else strcpy(G_cTxt, UPDATE_SCREEN_ON_SELECT_CHARACTER42);
+		} else strcpy_s(G_cTxt, UPDATE_SCREEN_ON_SELECT_CHARACTER42);
 		                     
 	}          
 
@@ -29680,7 +29400,7 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
 			iTempMin =   (m_iTimeLeftSecAccount / 60 ) % 60;
 			wsprintfA(G_cTxt, UPDATE_SCREEN_ON_SELECT_CHARACTER38, iTempDay, iTempHour, iTempMin);
 		}
-		else strcpy(G_cTxt, UPDATE_SCREEN_ON_SELECT_CHARACTER39);
+		else strcpy_s(G_cTxt, UPDATE_SCREEN_ON_SELECT_CHARACTER39);
 		                     
 	}
 	PutAlignedString(98, 357, 385 +10, G_cTxt);
@@ -29926,7 +29646,7 @@ void CGame::UpdateScreen_OnQueryDeleteCharacter()
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode  = MSGID_REQUEST_DELETECHARACTER;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg,"33");
+			strcpy_s(m_cMsg,"33");
 			delete pMI;
 			return;
 		
@@ -30032,7 +29752,7 @@ void CGame::NotifyMsgHandler(char* pData)
 		cp += 20;
 
 		ZeroMemory( m_stGuildName[sV2].cGuildName, sizeof(m_stGuildName[sV2].cGuildName) );
-		strcpy(m_stGuildName[sV2].cGuildName, cTemp);
+		strcpy_s(m_stGuildName[sV2].cGuildName, cTemp);
 		m_stGuildName[sV2].iGuildRank = sV1;
 		for (i = 0; i < 20; i++) if (m_stGuildName[sV2].cGuildName[i] == '_') m_stGuildName[sV2].cGuildName[i] = ' ';
 		break;
@@ -30823,7 +30543,7 @@ NMH_LOOPBREAK2:;
 
 		ZeroMemory(m_stDialogBoxInfo[32].cStr, sizeof(m_stDialogBoxInfo[32].cStr));
 		cp = (char*)(pData	+ DEF_INDEX2_MSGTYPE + 2);
-		strcpy(m_stDialogBoxInfo[32].cStr, cp);
+		strcpy_s(m_stDialogBoxInfo[32].cStr, cp);
 		break;
 	
 	case DEF_NOTIFY_RESPONSE_CREATENEWPARTY:
@@ -31072,7 +30792,7 @@ NMH_LOOPBREAK2:;
 	case DEF_NOTIFY_IPACCOUNTINFO:
 		ZeroMemory(cTemp, sizeof(cTemp));
 		cp = (char*)(pData + DEF_INDEX2_MSGTYPE + 2);
-		strcpy(cTemp, cp);
+		strcpy_s(cTemp, cp);
 		AddEventList(cTemp);
 		break;
 	
@@ -32270,10 +31990,9 @@ void CGame::DlbBoxDoubleClick_GuideMap(short msX, short msY)
 
 void CGame::DlbBoxDoubleClick_Inventory(short msX, short msY)
 {
- register int i;
- char  cItemID, cTxt[120];
- short sX, sY, x1, x2, y1, y2;
- char cStr1[64], cStr2[64], cStr3[64];
+	char  cItemID, cTxt[120];
+	short sX, sY, x1, x2, y1, y2;
+	char cStr1[64], cStr2[64], cStr3[64];
 
  
 	
@@ -32287,187 +32006,8 @@ void CGame::DlbBoxDoubleClick_Inventory(short msX, short msY)
 
 	sX = m_stDialogBoxInfo[2].sX;
 	sY = m_stDialogBoxInfo[2].sY;
-
-	//Á¤Áø±¤ Ãß°¡..¿¬±Ý¼ú...
-//¿¬±Ý¼ú ´ÙÀÌ¾ó·ÏÀÌ ¿­·Á ÀÖ´Ù¸é...
-#if DEF_LANGUAGE == 3
-	int iConsumeNum; // Á¤Áø±¤ Ãß°¡ º¯¼ö.
-	if ( m_bIsDialogEnabled[26] == TRUE) 
-	{
-		//AddEventList("¿¬±Ý¼ú ±×¸©ÀÌ ¿­·Á žx³×¿è", 10);
-	for (i = 0; i < DEF_MAXITEMS; i++)
-	{
-		if (m_cItemOrder[DEF_MAXITEMS - 1 - i] == -1) continue;
-		cItemID = m_cItemOrder[DEF_MAXITEMS - 1 - i];		
-		if (m_pItemList[cItemID] == NULL) continue;
-
-		m_pSprite[DEF_SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->_GetSpriteRect(sX + 32 + m_pItemList[cItemID]->m_sX,
-														   sY + 44 + m_pItemList[cItemID]->m_sY, m_pItemList[cItemID]->m_sSpriteFrame);
-		// ÁÂÇ¥¸¦ °Ë»öÇÏ¿© ¼±ÅÃµÇ¾ú´ÂÁö¸¦ °Ë»çÇÑ´Ù. ¸¸¾à ¼±ÅÃµÇ¾ú´Ù¸é Order¸¦ ¸Ç ¾Õ(¹è¿­»óÀ¸·Î´Â µÚ)À¸·Î ¿Å±ä´Ù.
-		x1 = (short)m_pSprite[DEF_SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->m_rcBound.left;   
-		y1 = (short)m_pSprite[DEF_SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->m_rcBound.top;    
-		x2 = (short)m_pSprite[DEF_SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->m_rcBound.right;  
-		y2 = (short)m_pSprite[DEF_SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->m_rcBound.bottom; 
-		
-		if ((m_bIsItemDisabled[cItemID] == FALSE) && (m_bIsItemEquipped[cItemID] == FALSE) && (msX > x1) && (msX < x2) && (msY > y1) && (msY < y2)) {
-
-		switch (m_stDialogBoxInfo[26].cMode) 
-		{
-		case 1:
-			if (m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) {
-				iConsumeNum = 0;
-				if (m_stDialogBoxInfo[26].sV1 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV2 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV3 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV4 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV5 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV6 == cItemID) iConsumeNum++;
-				if (iConsumeNum >= (int)(m_pItemList[cItemID]->m_dwCount)) return;
-			}
-			if ((m_pItemList[cItemID]->m_cItemType != DEF_ITEMTYPE_EAT) && 
-				(m_pItemList[cItemID]->m_cItemType != DEF_ITEMTYPE_CONSUME) &&
-				(m_pItemList[cItemID]->m_cItemType != DEF_ITEMTYPE_NONE)) return;
-		
-			// Á¶°ÇÀ» ¸¸Á·ÇÑ´Ù¸é ºó ÀÚ¸®¿¡ ³õ´Â´Ù. 
-			if (m_stDialogBoxInfo[26].sV1 == -1) {
-				m_stDialogBoxInfo[26].sV1 = cItemID;
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV2 == -1) {
-				m_stDialogBoxInfo[26].sV2 = cItemID;
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV3 == -1) {
-				m_stDialogBoxInfo[26].sV3 = cItemID;
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV4 == -1) {
-				m_stDialogBoxInfo[26].sV4 = cItemID;
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV5 == -1) {
-				m_stDialogBoxInfo[26].sV5 = cItemID;
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV6 == -1) {
-				m_stDialogBoxInfo[26].sV6 = cItemID;
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			// ºó ½½·ÔÀÌ ¾ø´Ù. 
-			AddEventList(BITEMDROP_SKILLDIALOG4, 10);//"´õÀÌ»ó Àç·á¸¦ ³õÀ» °ø°£ÀÌ ¾ø½À´Ï´Ù."
-			break;
-
-		case 4:
-			// ¹«±â/¾ÆÀÌÅÛ Á¦ÀÛ Ã¢ 
-			if (m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) {
-				iConsumeNum = 0;
-				if (m_stDialogBoxInfo[26].sV1 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV2 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV3 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV4 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV5 == cItemID) iConsumeNum++;
-				if (m_stDialogBoxInfo[26].sV6 == cItemID) iConsumeNum++;
-				if (iConsumeNum >= (int)(m_pItemList[cItemID]->m_dwCount)) return;
-			}
-			
-			// Á¶°ÇÀ» ¸¸Á·ÇÑ´Ù¸é ºó ÀÚ¸®¿¡ ³õ´Â´Ù. 
-			if (m_stDialogBoxInfo[26].sV1 == -1) {
-				m_stDialogBoxInfo[26].sV1 = cItemID;
-				// ¾ÆÀÌÅÛ Á¦ÀÛ Á¶°ÇÀÌ ¸¸Á·µÇ´ÂÁö °Ë»ç 
-				m_stDialogBoxInfo[26].cStr[4] = (char)_bCheckCurrentBuildItemStatus();
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV2 == -1) {
-				m_stDialogBoxInfo[26].sV2 = cItemID;
-				// ¾ÆÀÌÅÛ Á¦ÀÛ Á¶°ÇÀÌ ¸¸Á·µÇ´ÂÁö °Ë»ç 
-				m_stDialogBoxInfo[26].cStr[4] = (char)_bCheckCurrentBuildItemStatus();
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV3 == -1) {
-				m_stDialogBoxInfo[26].sV3 = cItemID;
-				// ¾ÆÀÌÅÛ Á¦ÀÛ Á¶°ÇÀÌ ¸¸Á·µÇ´ÂÁö °Ë»ç 
-				m_stDialogBoxInfo[26].cStr[4] = (char)_bCheckCurrentBuildItemStatus();
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV4 == -1) {
-				m_stDialogBoxInfo[26].sV4 = cItemID;
-				// ¾ÆÀÌÅÛ Á¦ÀÛ Á¶°ÇÀÌ ¸¸Á·µÇ´ÂÁö °Ë»ç 
-				m_stDialogBoxInfo[26].cStr[4] = (char)_bCheckCurrentBuildItemStatus();
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV5 == -1) {
-				m_stDialogBoxInfo[26].sV5 = cItemID;
-				// ¾ÆÀÌÅÛ Á¦ÀÛ Á¶°ÇÀÌ ¸¸Á·µÇ´ÂÁö °Ë»ç 
-				m_stDialogBoxInfo[26].cStr[4] = (char)_bCheckCurrentBuildItemStatus();
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			else if (m_stDialogBoxInfo[26].sV6 == -1) {
-				m_stDialogBoxInfo[26].sV6 = cItemID;
-				// ¾ÆÀÌÅÛ Á¦ÀÛ Á¶°ÇÀÌ ¸¸Á·µÇ´ÂÁö °Ë»ç 
-				m_stDialogBoxInfo[26].cStr[4] = (char)_bCheckCurrentBuildItemStatus();
-				if ((m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_CONSUME) && (m_pItemList[cItemID]->m_dwCount > 1)) {
-					// v1.4 ¼Ò¸ð¼º ¾ÆÀÌÅÛÀÇ °æ¿ì 1°³°¡ ³²¾ÆÀÖÁö ¾Ê´Â ÇÑ Disable ½ÃÄÑ¼­´Â ¾ÈµÈ´Ù.
-				}
-				else m_bIsItemDisabled[cItemID] = TRUE;
-				return;
-			}
-			// ºó ½½·ÔÀÌ ¾ø´Ù. 
-			AddEventList(BITEMDROP_SKILLDIALOG4, 10);//"´õÀÌ»ó Àç·á¸¦ ³õÀ» °ø°£ÀÌ ¾ø½À´Ï´Ù."
-			break;
-		default:
-			break;
-		} // Close switch block
-	} // Close ..¾ÆÀÌÅÛ ¼±ÅÃ¿©ºÎ¿¡ ´ëÇÑ if ºí·°
-	} // Close for loop
-	} // Close ¹«±âÁ¦ÀÛ/¿¬±Ý¼ú ´ÙÀÌ¾ó·Ï ¿­·ÁÀÖ´ÂÁö ¿©ºÎ..
-#endif
-	//Á¤Áø±¤ Ãß°¡ ¿©±â±îÁö...
 	
-	for (i = 0; i < DEF_MAXITEMS; i++)
+	for (int i = 0; i < DEF_MAXITEMS; i++)
 	{
 		if (m_cItemOrder[DEF_MAXITEMS - 1 - i] == -1) continue;
 		cItemID = m_cItemOrder[DEF_MAXITEMS - 1 - i];		
@@ -32493,37 +32033,6 @@ void CGame::DlbBoxDoubleClick_Inventory(short msX, short msY)
 					return;
 				}
 			}
-
-	//2003.06.09 Á¤Áø±¤ ÁøÁ¤ÇÇµå¹é...
-	#ifdef DEF_FEEDBACKCARD
-		DisableDialogBox(5);
-		if( !strcmp(m_pItemList[cItemID]->m_cName, "Realfeedbackcard1"))
-			m_iFeedBackCardIndex = 1;
-		if( !strcmp(m_pItemList[cItemID]->m_cName, "Realfeedbackcard2"))
-			m_iFeedBackCardIndex = 2;
-		if( !strcmp(m_pItemList[cItemID]->m_cName, "Realfeedbackcard3"))
-			m_iFeedBackCardIndex = 3;
-		if( !strcmp(m_pItemList[cItemID]->m_cName, "Realfeedbackcard4"))
-			m_iFeedBackCardIndex = 4;
-		if( !strcmp(m_pItemList[cItemID]->m_cName, "Realfeedbackcard5"))
-			m_iFeedBackCardIndex = 5;
-		if( !strcmp(m_pItemList[cItemID]->m_cName, "Realfeedbackcard6"))
-			m_iFeedBackCardIndex = 6;
-		if( !strcmp(m_pItemList[cItemID]->m_cName, "Realfeedbackcard7"))
-			m_iFeedBackCardIndex = 7;
-		
-		if (m_iFeedBackCardIndex > 0 )
-		{
-			m_stDialogBoxInfo[5].sX  =  150;
-			m_stDialogBoxInfo[5].sY  =  100;
-			EnableDialogBox(5, NULL, NULL, NULL);
-		}
-		else
-			m_iFeedBackCardIndex = -1;
-	//	return;
-	#endif
-
-
 
 			// ¸¸¾à »ç¿ëÇÏ¿© È¿°ú¸¦ º¸´Â ¾ÆÀÌÅÛÀÌ¶ó¸é ¼­¹ö·Î Àü¼ÛÇÑ´Ù. 
 			if ( (m_pItemList[cItemID]->m_cItemType == DEF_ITEMTYPE_USE_DEPLETE) ||
@@ -32668,322 +32177,6 @@ void CGame::DlbBoxDoubleClick_Inventory(short msX, short msY)
 	}
 }
 
-#if DEF_LANGUAGE == 2
-
-void CGame::UpdateScreen_OnChangePassword()
-{
- short msX, msY, msZ;
- char cLB, cRB;
- char cMIresult;
- int  iMIbuttonNum;
- static class CMouseInterface * pMI; 
- static char  cName[12], cPassword[12], cSSN[20], cNewPassword[12], cNewPassConfirm[12], cPrevFocus;
- static DWORD dwCTime;
- DWORD dwTime = timeGetTime();	
- BOOL bFlag = TRUE;
-
-	if (m_cGameModeCount == 0) {
-		EndInputString();
-		
-		pMI = new class CMouseInterface;
-		pMI->AddRect(300, 148, 425, 170);
-		pMI->AddRect(300, 172, 425, 194);
-		pMI->AddRect(300, 196, 425, 218);
-		pMI->AddRect(300, 220, 425, 242);
-		pMI->AddRect(300, 244, 425, 264);
-
-		pMI->AddRect(197, 320, 197 + DEF_BTNSZX, 320 + DEF_BTNSZY);
-		pMI->AddRect(370, 320, 370 + DEF_BTNSZX, 320 + DEF_BTNSZY);
-
-		cPrevFocus  = 2;
-		m_cCurFocus = 2;//1;
-		m_cMaxFocus = 7;
-		m_bEnterPressed = FALSE;
-		m_cArrowPressed = 0;
-
-		ZeroMemory(cName, sizeof(cName));
-		ZeroMemory(cPassword, sizeof(cPassword));
-		ZeroMemory(cSSN, sizeof(cSSN));
-		ZeroMemory(cNewPassword, sizeof(cNewPassword));
-		ZeroMemory(cNewPassConfirm, sizeof(cNewPassConfirm));
-		ClearInputString();
-		strcpy( cName, m_cAccountName );
-		StartInputString(314, 179, 11, cPassword);
-		dwCTime = dwTime;
-	}
-	m_cGameModeCount++;
-	if (m_cGameModeCount > 100) m_cGameModeCount = 100;
-
-	if ((dwTime - dwCTime) > 100) {
-		m_cMenuFrame++;
-		dwCTime = dwTime;
-	}
-	if (m_cMenuFrame >= 8) {
-		m_cMenuDirCnt++;
-		if (m_cMenuDirCnt > 8) {
-			m_cMenuDir++;
-			m_cMenuDirCnt = 1;
-		}
-		m_cMenuFrame = 0;
-	}
-	if (m_cMenuDir > 8) m_cMenuDir = 1;
-
-	if (m_cArrowPressed != 0) {
-		// È­»ìÇ¥Å°°¡ ´­·È´Ù.
-		switch (m_cArrowPressed) {
-		case 1:
-			m_cCurFocus--;
-			if (m_cCurFocus <= 0) m_cCurFocus = m_cMaxFocus;
-			break;
-		
-		case 2:
-			if (m_cCurFocus == 3) m_cCurFocus = 4;
-			else if (m_cCurFocus == 4) m_cCurFocus = 3;
-			break;
-		
-		case 3:
-			m_cCurFocus++;
-			if (m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
-			break;
-
-		case 4:
-			if (m_cCurFocus == 3) m_cCurFocus = 4;
-			else if (m_cCurFocus == 4) m_cCurFocus = 3;
-			break;
-		}
-		m_cArrowPressed = 0;
-	}
-
-	if (m_bEnterPressed == TRUE) {
-		// ¿£ÅÍÅ°°¡ ´­·È´Ù. 	
-		PlaySound('E', 14, 5);
-
-		switch (m_cCurFocus) {
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-			m_cCurFocus++;
-			if( m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
-			break;
-		
-		case 6:
-			if ( (m_Misc.bCheckValidString(cPassword) == FALSE) || (strlen(cPassword) < 1) || (m_Misc.bIsValidSSN(cSSN) == FALSE) ||
-				 (m_Misc.bCheckValidName(cNewPassword) == FALSE) || (m_Misc.bCheckValidName(cNewPassConfirm) == FALSE) ||
-				 (strlen(cNewPassword) < 8) || (memcmp(cNewPassword, cNewPassConfirm, 10) != 0) ) break;
-
-			// Connect ¹öÆ°ÀÌ ¼±ÅÃµÈ »óÅÂ¿¡¼­ EnterÅ°°¡ ´­·È´Ù.
-			// ÀÌ¸§À» ÃÊ±âÈ­ÇÑ´Ù. 
-			ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-			ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-			ZeroMemory(m_cAccountSSN, sizeof(m_cAccountSSN));
-			ZeroMemory(m_cNewPassword, sizeof(m_cNewPassword));
-			ZeroMemory(m_cNewPassConfirm, sizeof(m_cNewPassConfirm));
-			
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
-			strcpy(m_cAccountSSN, cSSN);
-			strcpy(m_cNewPassword, cNewPassword);
-			strcpy(m_cNewPassConfirm, cNewPassConfirm);
-
-			// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
-			m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
-			// °ÔÀÓ¸ðµå º¯È¯ 
-			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
-			m_dwConnectMode = MSGID_REQUEST_CHANGEPASSWORD;
-			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "41");
-			delete pMI;
-			return;
-		
-		case 7:
-			// Cancel ¹öÆ°ÀÌ ¼±ÅÃµÈ »óÅÂ¿¡¼­ EnterÅ°°¡ ´­·È´Ù.
-			ChangeGameMode(DEF_GAMEMODE_ONSELECTCHARACTER);
-			//m_dwLoginMode = MSGID_REQUEST_LOGIN;
-			delete pMI;
-			return;
-		}
-		// (!)
-		m_bEnterPressed = FALSE;
-	}
-
-	if (m_bEscPressed == TRUE) {
-		ChangeGameMode(DEF_GAMEMODE_ONMAINMENU);
-		delete pMI;
-		m_bEscPressed = FALSE;
-		return;
-	}
-
-	if (cPrevFocus != m_cCurFocus) {
-		// ¸¶¿ì½º³ª ¿£ÅÍ, ÅÇÅ°µî¿¡ ÀÇÇØ¼­ ÀÔ·Â Æ÷Ä¿½º°¡ º¯°æµÇ¾ú´Ù.
-		EndInputString();
-		switch (m_cCurFocus) {
-		case 1:
-			StartInputString(314, 155, 11, cName);
-			break;
-		case 2:
-			StartInputString(314, 179, 11, cPassword);
-			break;
-		case 3:
-			StartInputString(314, 203, 19, cSSN);
-			break;
-		case 4:
-			StartInputString(314, 227, 11, cNewPassword);
-			break;
-		case 5:
-			StartInputString(314, 251, 11, cNewPassConfirm);
-		}
-		cPrevFocus = m_cCurFocus;
-	}
-
-	m_DDraw.ClearBackB4();
-
-	UpdateScreen_OnSelectCharacter(0, 0, 0, 0, TRUE);
-
-	if ((m_cGameModeCount >= 0) && (m_cGameModeCount < 6)) {
-		m_DDraw.DrawShadowBox(0,0,639,479);
-	}
-	else if (m_cGameModeCount >= 6) {
-		m_DDraw.DrawShadowBox(0,0,639,479);
-		m_DDraw.DrawShadowBox(0,0,639,479);
-	}
-
-	DrawNewDialogBox(DEF_SPRID_INTERFACE_ND_GAME4, 153, 112, 0);
-	DrawNewDialogBox(DEF_SPRID_INTERFACE_ND_TEXT , 153, 112, 13);
-	DrawNewDialogBox(DEF_SPRID_INTERFACE_ND_GAME4, 153 + 157, 112 + 109, 7);//Blank ÇÏ³ª ´õ ¶ç¿öÁÖ±â À§ÇØ..
-	DrawNewDialogBox(DEF_SPRID_INTERFACE_ND_GAME4, 153 + 157, 112 + 133, 7);//Blank ÇÏ³ª ´õ ¶ç¿öÁÖ±â À§ÇØ..
-
-	PutString(206, 155, UPDATE_SCREEN_ON_CHANGE_PASSWORD1, RGB(25,35,25));
-	PutString(206, 179, UPDATE_SCREEN_ON_CHANGE_PASSWORD2, RGB(25,35,25));
-	PutString(206, 203, "Éí·ÝÖ¤", RGB(25,35,25));
-	PutString(206, 227, UPDATE_SCREEN_ON_CHANGE_PASSWORD3, RGB(25,35,25));
-	PutString(206, 251, UPDATE_SCREEN_ON_CHANGE_PASSWORD4, RGB(25,35,25));
-
-	if (m_cCurFocus != 1) {
-		if (m_Misc.bCheckValidString(cName) != FALSE)
-			 PutString(314, 155, cName, RGB(25,35,25));
-		else PutString(314, 155, cName, RGB(55,18,13));
-	}
-	if ((m_Misc.bCheckValidString(cName) == FALSE) || (strlen(cName) == 0)) bFlag = FALSE;
-
-	if (m_cCurFocus != 2) {
-		if ((m_Misc.bCheckValidString(cPassword) != FALSE))
-			 PutString(314, 179, cPassword, RGB(25,35,25), TRUE, 3);
-		else PutString(314, 179, cPassword, RGB(55,18,13), TRUE, 3);
-	}
-
-	if (m_cCurFocus != 3) {
-		if ((m_Misc.bIsValidSSN(cSSN) != FALSE))
-			 PutString(314, 203, cSSN, RGB(25,35,25));
-		else PutString(314, 203, cSSN, RGB(200,100,100));
-	}
-
-	if (m_cCurFocus != 4) {
-		if ((m_Misc.bCheckValidName(cNewPassword) != FALSE))
-			 PutString(314, 227, cNewPassword, RGB(25,35,25), TRUE, 3);
-		else PutString(314, 227, cNewPassword, RGB(55,18,13), TRUE, 3);
-	}
-
-	if (m_cCurFocus != 5) {
-		if ((m_Misc.bCheckValidName(cNewPassConfirm) != FALSE))
-			 PutString(314, 251, cNewPassConfirm, RGB(25,35,25), TRUE, 3);
-		else PutString(314, 251, cNewPassConfirm, RGB(55,18,13), TRUE, 3);
-	}
-
-	if ( (m_Misc.bCheckValidString(cPassword) == FALSE) || (strlen(cPassword) < 1) || (m_Misc.bIsValidSSN(cSSN)==FALSE) ||
-		 (strlen(cNewPassword) < 8) || (memcmp(cNewPassword, cNewPassConfirm, 10) != 0) ) bFlag = FALSE;
-
-	if ((m_cCurFocus == 1) || (m_cCurFocus == 3))
-		ShowReceivedString();
-	else
-	if ((m_cCurFocus == 2) || (m_cCurFocus == 4) || (m_cCurFocus == 5))	
-		ShowReceivedString(TRUE);
-	
-//	PutAlignedString(153, 487, 258, UPDATE_SCREEN_ON_CHANGE_PASSWORD5);//"º¯°æÇÏ°íÀÚ ÇÏ´Â °èÁ¤ ÀÌ¸§°ú  ÆÐ½º¿ö"
-	PutAlignedString(153, 487, 273, UPDATE_SCREEN_ON_CHANGE_PASSWORD6);//"µå¸¦ ÀÔ·ÂÇÏ½Ã°í »õ ÆÐ½º¿öµå¸¦ ´ë¼Ò¹®"
-	PutAlignedString(153, 487, 288, UPDATE_SCREEN_ON_CHANGE_PASSWORD7);//"ÀÚ¸¦ ±¸ºÐÇÏ¿© 8±ÛÀÚ ÀÌ»ó ÀÔ·ÂÇÏ½Ê½Ã¿À."
-	
-	if ( (bFlag == TRUE) && (m_cCurFocus == 6) )
-		 m_pSprite[DEF_SPRID_INTERFACE_ND_BUTTON]->PutSpriteFast(197, 320, 21, dwTime);
-	else m_pSprite[DEF_SPRID_INTERFACE_ND_BUTTON]->PutSpriteFast(197, 320, 20, dwTime);
-	
-	if (m_cCurFocus == 7) 
-		 m_pSprite[DEF_SPRID_INTERFACE_ND_BUTTON]->PutSpriteFast(370, 320, 17, dwTime);
-	else m_pSprite[DEF_SPRID_INTERFACE_ND_BUTTON]->PutSpriteFast(370, 320, 16, dwTime);
-
-	DrawVersion();
-	// ¸¶¿ì½º Ä¿¼­ ±×¸°´Ù.
-	m_DInput.UpdateMouseState(&msX, &msY, &msZ, &cLB, &cRB);
-	m_pSprite[DEF_SPRID_MOUSECURSOR]->PutSpriteFast(msX, msY, 0, dwTime);
-	iMIbuttonNum = pMI->iGetStatus(msX, msY, cLB, &cMIresult);
-	if (cMIresult == DEF_MIRESULT_CLICK) {
-		// ¸¶¿ì½ºÅ¬¸¯. 
-		PlaySound('E', 14, 5);
-
-		switch (iMIbuttonNum) {
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-			m_cCurFocus = iMIbuttonNum;
-			break;
-		
-		case 6:
-			if ( (m_Misc.bCheckValidString(cPassword) == FALSE) || (strlen(cPassword) < 1) || 
-				 (m_Misc.bCheckValidName(cNewPassword) == FALSE) || (m_Misc.bCheckValidName(cNewPassConfirm) == FALSE) ||
-				 (strlen(cNewPassword) == 0) || (memcmp(cNewPassword, cNewPassConfirm, 10) != 0) ) break;
-
-			EndInputString();
-			
-			// ÀÌ¸§À» ÃÊ±âÈ­ÇÑ´Ù. 
-			ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-			ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-			ZeroMemory(m_cNewPassword, sizeof(m_cNewPassword));
-			ZeroMemory(m_cNewPassConfirm, sizeof(m_cNewPassConfirm));
-			ZeroMemory(m_cAccountSSN, sizeof(cSSN));
-			
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
-
-			strcpy(m_cAccountSSN, cSSN);
-			
-			strcpy(m_cNewPassword, cNewPassword);
-			strcpy(m_cNewPassConfirm, cNewPassConfirm);
-			
-			// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
-			m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
-			// °ÔÀÓ¸ðµå º¯È¯ 
-			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
-			m_dwConnectMode = MSGID_REQUEST_CHANGEPASSWORD;
-			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "41");
-			delete pMI;
-			return;
-
-		case 7:
-			// Cancel ¹öÆ°ÀÌ ´­·È´Ù.
-			
-			ChangeGameMode(DEF_GAMEMODE_ONSELECTCHARACTER);
-			//m_dwLoginMode = MSGID_REQUEST_LOGIN;
-			delete pMI;
-			return;
-		}
-	}
-
-	if ((msX >= 197) && (msX <= 197 + DEF_BTNSZX) && (msY >= 320) && (msY <= 320 + DEF_BTNSZY)) m_cCurFocus = m_cMaxFocus-1;
-	if ((msX >= 370) && (msX <= 370 + DEF_BTNSZX) && (msY >= 320) && (msY <= 320 + DEF_BTNSZY)) m_cCurFocus = m_cMaxFocus;
-
-	if (m_DDraw.iFlip() == DDERR_SURFACELOST) RestoreSprites();
-}
-
-#else
-
 void CGame::UpdateScreen_OnChangePassword()
 {
  short msX, msY, msZ;
@@ -33019,7 +32212,7 @@ void CGame::UpdateScreen_OnChangePassword()
 		ZeroMemory(cNewPassword, sizeof(cNewPassword));
 		ZeroMemory(cNewPassConfirm, sizeof(cNewPassConfirm));
 
-		strcpy( cName, m_cAccountName );
+		strcpy_s( cName, m_cAccountName );
 		//StartInputString(314, 155, 11, cName);
 		StartInputString(314, 179, 11, cPassword);
 		ClearInputString();
@@ -33093,10 +32286,10 @@ void CGame::UpdateScreen_OnChangePassword()
 			ZeroMemory(m_cNewPassword, sizeof(m_cNewPassword));
 			ZeroMemory(m_cNewPassConfirm, sizeof(m_cNewPassConfirm));
 			
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
-			strcpy(m_cNewPassword, cNewPassword);
-			strcpy(m_cNewPassConfirm, cNewPassConfirm);
+			strcpy_s(m_cAccountName, cName);
+			strcpy_s(m_cAccountPassword, cPassword);
+			strcpy_s(m_cNewPassword, cNewPassword);
+			strcpy_s(m_cNewPassConfirm, cNewPassConfirm);
 
 			// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 			m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
@@ -33106,7 +32299,7 @@ void CGame::UpdateScreen_OnChangePassword()
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CHANGEPASSWORD;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "41");
+			strcpy_s(m_cMsg, "41");
 			delete pMI;
 			return;
 		
@@ -33122,11 +32315,7 @@ void CGame::UpdateScreen_OnChangePassword()
 	}
 
 	if (m_bEscPressed == TRUE) {
-		#ifdef DEF_JAPAN_FOR_TERRA
-			ChangeGameMode(DEF_GAMEMODE_ONSELECTSERVER);
-		#else
-			ChangeGameMode(DEF_GAMEMODE_ONMAINMENU);
-		#endif
+		ChangeGameMode(DEF_GAMEMODE_ONMAINMENU);
 		delete pMI;
 		m_bEscPressed = FALSE;
 		return;
@@ -33191,15 +32380,10 @@ void CGame::UpdateScreen_OnChangePassword()
 		else PutString(314, 227, cNewPassConfirm, RGB(55,18,13), TRUE, 3);
 	}
 
-#if DEF_LANGUAGE == 4	//¾ð¾î:English
 	if ( (m_Misc.bCheckValidString(cPassword) == FALSE) || (strlen(cPassword) == 0) || 
 		 (strlen(cNewPassword) < 8) || (memcmp(cNewPassword, cNewPassConfirm, 10) != 0) ||
 		  // 2002-10-18 #1 ÀÎÅÍ¼· ¾ÏÈ£ º¯°æ½Ã ±âÁ¸ ¾ÏÈ£¿Í ´Þ¶ó¾ß ÇÑ´Ù.
 		 ( memcmp(cPassword, cNewPassword, 10) == 0 ) ) bFlag = FALSE;
-#else
-	if ( (m_Misc.bCheckValidString(cPassword) == FALSE) || (strlen(cPassword) == 0) || 
-		 (strlen(cNewPassword) < 8) || (memcmp(cNewPassword, cNewPassConfirm, 10) != 0) ) bFlag = FALSE;
-#endif
 
 	if (m_cCurFocus == 1) ShowReceivedString();
 	else if ((m_cCurFocus == 2) || (m_cCurFocus == 3) || (m_cCurFocus == 4)) ShowReceivedString(TRUE);
@@ -33246,11 +32430,11 @@ void CGame::UpdateScreen_OnChangePassword()
 			ZeroMemory(m_cNewPassword, sizeof(m_cNewPassword));
 			ZeroMemory(m_cNewPassConfirm, sizeof(m_cNewPassConfirm));
 			
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
+			strcpy_s(m_cAccountName, cName);
+			strcpy_s(m_cAccountPassword, cPassword);
 			
-			strcpy(m_cNewPassword, cNewPassword);
-			strcpy(m_cNewPassConfirm, cNewPassConfirm);
+			strcpy_s(m_cNewPassword, cNewPassword);
+			strcpy_s(m_cNewPassConfirm, cNewPassConfirm);
 			
 			// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 			m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
@@ -33260,7 +32444,7 @@ void CGame::UpdateScreen_OnChangePassword()
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CHANGEPASSWORD;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "41");
+			strcpy_s(m_cMsg, "41");
 			delete pMI;
 			return;
 
@@ -33277,7 +32461,6 @@ void CGame::UpdateScreen_OnChangePassword()
 
 	if (m_DDraw.iFlip() == DDERR_SURFACELOST) RestoreSprites();
 }
-#endif
 
 void CGame::DlgBoxClick_SysMenu(short msX, short msY)
 {
@@ -33413,15 +32596,15 @@ void CGame::DrawNpcName(short sX, short sY, short sOwnerType, short sStatus)
 	ZeroMemory(cTxt2, sizeof(cTxt2));
 
 	GetNpcName(sOwnerType, cTxt);
-	if ((sStatus & 0x20) != 0) strcat(cTxt, DRAW_OBJECT_NAME50);//" Berserk" 
-	if ((sStatus & 0x40) != 0) strcat(cTxt, DRAW_OBJECT_NAME51);//" Frozen"
+	if ((sStatus & 0x20) != 0) strcat_s(cTxt, DRAW_OBJECT_NAME50);//" Berserk" 
+	if ((sStatus & 0x40) != 0) strcat_s(cTxt, DRAW_OBJECT_NAME51);//" Frozen"
 
 	PutString2(sX, sY, cTxt, 255,255,255);
 
 	if (m_bIsObserverMode == TRUE) PutString2(sX, sY+14, cTxt, 50,50,255);// °ü¶÷ÀÚ ¸ðµåÀÏ¶§´Â Àû, ¾Æ±º ±¸ºÐÀ» ÇÏÁö ¾Ê´Â´Ù.
 	else if (m_bIsConfusion || (m_iIlusionOwnerH != NULL)) {
 		ZeroMemory(cTxt, sizeof(cTxt));
-		strcpy(cTxt, DRAW_OBJECT_NAME87);//"¾Ë¼ö¾øÀ½(Unknown)"
+		strcpy_s(cTxt, DRAW_OBJECT_NAME87);//"¾Ë¼ö¾øÀ½(Unknown)"
 		PutString2(sX, sY+14, cTxt, 150,150,150); // v2.171
 	}
 	else
@@ -33445,14 +32628,14 @@ void CGame::DrawNpcName(short sX, short sY, short sOwnerType, short sStatus)
 
 	switch ((sStatus & 0x0F00) >> 8) {
 	case 0: break;
-	case 1: strcpy(cTxt2, DRAW_OBJECT_NAME52); break;//"Clairvoyant"
-	case 2: strcpy(cTxt2, DRAW_OBJECT_NAME53); break;//"Destruction of Magic Protection"
-	case 3: strcpy(cTxt2, DRAW_OBJECT_NAME54); break;//"Anti-Physical Damage"
-	case 4: strcpy(cTxt2, DRAW_OBJECT_NAME55); break;//"Anti-Magic Damage"
-	case 5: strcpy(cTxt2, DRAW_OBJECT_NAME56); break;//"Poisonous"
-	case 6: strcpy(cTxt2, DRAW_OBJECT_NAME57); break;//"Critical Poisonous" 
-	case 7: strcpy(cTxt2, DRAW_OBJECT_NAME58); break;//"Explosive"  
-	case 8: strcpy(cTxt2, DRAW_OBJECT_NAME59); break;//"Critical Explosive"
+	case 1: strcpy_s(cTxt2, DRAW_OBJECT_NAME52); break;//"Clairvoyant"
+	case 2: strcpy_s(cTxt2, DRAW_OBJECT_NAME53); break;//"Destruction of Magic Protection"
+	case 3: strcpy_s(cTxt2, DRAW_OBJECT_NAME54); break;//"Anti-Physical Damage"
+	case 4: strcpy_s(cTxt2, DRAW_OBJECT_NAME55); break;//"Anti-Magic Damage"
+	case 5: strcpy_s(cTxt2, DRAW_OBJECT_NAME56); break;//"Poisonous"
+	case 6: strcpy_s(cTxt2, DRAW_OBJECT_NAME57); break;//"Critical Poisonous" 
+	case 7: strcpy_s(cTxt2, DRAW_OBJECT_NAME58); break;//"Explosive"  
+	case 8: strcpy_s(cTxt2, DRAW_OBJECT_NAME59); break;//"Critical Explosive"
 	}
 	if( m_Misc.bCheckIMEString(cTxt2) ) PutString_SprFont3(sX, sY + 28, cTxt2, m_wR[13]*4, m_wG[13]*4, m_wB[13]*4, FALSE, 2);
 	else PutString2(sX, sY + 28, cTxt2, 240,240,70);
@@ -33488,26 +32671,26 @@ void CGame::DrawObjectName(short sX, short sY, const char* pName, short sStatus)
 		if (m_bIsCrusadeMode == FALSE) wsprintfA(cTxt, "%s", pName);
 		else
 		{
-			if (_tmp_wObjectID >= 10000) strcpy(cTxt, NPC_NAME_MERCENARY); //"¿ëº´"
+			if (_tmp_wObjectID >= 10000) strcpy_s(cTxt, NPC_NAME_MERCENARY); //"¿ëº´"
 			else
 			{
 				if( iFOE == -1 ) wsprintfA(cTxt, "%d", _tmp_wObjectID);// Å©·ç¼¼ÀÌµå ¸ðµå¿¡¼­ Àû Ä³¸¯ÅÍ´Ù. ¿ÀºêÁ§Æ® ¾ÆÀÌµð¸¦ Âï´Â´Ù.
-				else strcpy(cTxt, pName);
+				else strcpy_s(cTxt, pName);
 			}
 		}
 		if (m_iPartyStatus != NULL) {
 			for (i = 0; i < DEF_MAXPARTYMEMBERS; i++) {
 				if (strcmp(m_stPartyMemberNameList[i].cName, pName) == 0) {
-					strcat(cTxt, BGET_NPC_NAME23);//", ÆÄÆ¼¿ø"
+					strcat_s(cTxt, BGET_NPC_NAME23);//", ÆÄÆ¼¿ø"
 					break;
 				}
 			}	
 		}
 	}
-	else strcpy(cTxt, "?????");
+	else strcpy_s(cTxt, "?????");
 
-	if ((sStatus & 0x20) != 0) strcat(cTxt, DRAW_OBJECT_NAME50);//" Berserk" 
-	if ((sStatus & 0x40) != 0) strcat(cTxt, DRAW_OBJECT_NAME51);//" Frozen"
+	if ((sStatus & 0x20) != 0) strcat_s(cTxt, DRAW_OBJECT_NAME50);//" Berserk" 
+	if ((sStatus & 0x40) != 0) strcat_s(cTxt, DRAW_OBJECT_NAME51);//" Frozen"
 
 	PutString2(sX, sY, cTxt, 255,255,255);
 	ZeroMemory(cTxt, sizeof(cTxt));
@@ -33583,35 +32766,35 @@ void CGame::DrawObjectName(short sX, short sY, const char* pName, short sStatus)
 		}
 	}
 
-	if( bCitizen == FALSE )	strcpy(cTxt, DRAW_OBJECT_NAME60);//"¿©ÇàÀÚ"
+	if( bCitizen == FALSE )	strcpy_s(cTxt, DRAW_OBJECT_NAME60);//"¿©ÇàÀÚ"
 	else
 	{
 		if( bAresden )
 		{
 //#if DEF_LANGUAGE > 2		// Korea 2.19
-			if( bHunter == TRUE ) strcpy(cTxt, DEF_MSG_ARECIVIL);//"¾Æ·¹½ºµ§ ¹Î°£ÀÎ"
-			else strcpy(cTxt, DEF_MSG_ARESOLDIER);//"¾Æ·¹½ºµ§ º´»ç"
+			if( bHunter == TRUE ) strcpy_s(cTxt, DEF_MSG_ARECIVIL);//"¾Æ·¹½ºµ§ ¹Î°£ÀÎ"
+			else strcpy_s(cTxt, DEF_MSG_ARESOLDIER);//"¾Æ·¹½ºµ§ º´»ç"
 //#else
-//			strcpy(cTxt, DRAW_OBJECT_NAME62);//"¾Æ·¹½ºµ§ ¼Ò¼Ó"
+//			strcpy_s(cTxt, DRAW_OBJECT_NAME62);//"¾Æ·¹½ºµ§ ¼Ò¼Ó"
 //#endif
 		}
 		else
 		{
 //#if DEF_LANGUAGE > 2		// Korea 2.19
-			if( bHunter == TRUE ) strcpy(cTxt, DEF_MSG_ELVCIVIL);//"¿¤¹ÙÀÎ ¹Î°£ÀÎ"
-			else strcpy(cTxt, DEF_MSG_ELVSOLDIER);
+			if( bHunter == TRUE ) strcpy_s(cTxt, DEF_MSG_ELVCIVIL);//"¿¤¹ÙÀÎ ¹Î°£ÀÎ"
+			else strcpy_s(cTxt, DEF_MSG_ELVSOLDIER);
 //#else
-//			strcpy(cTxt, DRAW_OBJECT_NAME74);// ¿¤¹ÙÀÎ ¼Ò¼Ó
+//			strcpy_s(cTxt, DRAW_OBJECT_NAME74);// ¿¤¹ÙÀÎ ¼Ò¼Ó
 //#endif
 		}
 	}
 	if( bPK == TRUE )
 	{
-		if( bCitizen == FALSE ) strcpy( cTxt, DEF_MSG_PK );//"¹üÁËÀÚ"
+		if( bCitizen == FALSE ) strcpy_s( cTxt, DEF_MSG_PK );//"¹üÁËÀÚ"
 		else
 		{
-			if( bAresden ) strcpy( cTxt, DEF_MSG_AREPK );//"¾Æ·¹½ºµ§ ¹üÁËÀÚ"
-			else strcpy( cTxt, DEF_MSG_ELVPK );//"¿¤¹ÙÀÎ ¹üÁËÀÚ"
+			if( bAresden ) strcpy_s( cTxt, DEF_MSG_AREPK );//"¾Æ·¹½ºµ§ ¹üÁËÀÚ"
+			else strcpy_s( cTxt, DEF_MSG_ELVPK );//"¿¤¹ÙÀÎ ¹üÁËÀÚ"
 		}
 	}
 	PutString2(sX, sY+14 +iAddY, cTxt, sR, sG, sB);
@@ -33744,255 +32927,255 @@ char CGame::GetOfficialMapName(char* pMapName, char* pName)
 {
 	//¸®ÅÏ°ªÀº MapIndex¸¦ ¶æÇÑ´Ù.
 	if (strcmp(pMapName, "middleland") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME28);//"¹Ìµé·£µå"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME28);//"¹Ìµé·£µå"
 		return 4;
 	}
 	else if (strcmp(pMapName, "huntzone3") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME31);//"µ¥¾² ¹ë¸®" 
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME31);//"µ¥¾² ¹ë¸®" 
 		return 0;
 	}
 	else if (strcmp(pMapName, "huntzone1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME29);//"·ÏÅ° ÇÏÀÌ·£µå"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME29);//"·ÏÅ° ÇÏÀÌ·£µå"
 		return 1;
 	}
 	else if (strcmp(pMapName, "elvuni") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME57);//"¿¤µð´Ï¿¤ °¡µç"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME57);//"¿¤µð´Ï¿¤ °¡µç"
 		return 2;
 	}
 	else if (strcmp(pMapName, "elvine") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME24);//"¿¤¹ÙÀÎ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME24);//"¿¤¹ÙÀÎ"
 		return 3;
 	}
 	else if (strcmp(pMapName, "elvfarm") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME2);//"¿¤¹ÙÀÎ ³ó°æÁö"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME2);//"¿¤¹ÙÀÎ ³ó°æÁö"
 		return 5;
 	}
 	else if (strcmp(pMapName, "arefarm") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME1);//"¾Æ·¹½ºµ§ ³ó°æÁö"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME1);//"¾Æ·¹½ºµ§ ³ó°æÁö"
 		return 6;
 	}
 	else if (strcmp(pMapName, "default") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME3);//"ÃÊº¸Á¸"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME3);//"ÃÊº¸Á¸"
 		return 7;
 	}
 	else if (strcmp(pMapName, "huntzone4") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME32);//"»çÀÏ·±Æ® ¿ìµå"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME32);//"»çÀÏ·±Æ® ¿ìµå"
 		return 8;
 	}
 	else if (strcmp(pMapName, "huntzone2") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME30);//"ÀÌÅÍ³Î ÇÊµå"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME30);//"ÀÌÅÍ³Î ÇÊµå"
 		return 9;
 	}
 	else if (strcmp(pMapName, "areuni") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME56);//"¾Æ·¹½Ã¿£ °¡µç"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME56);//"¾Æ·¹½Ã¿£ °¡µç"
 		return 10;
 	}
 	else if (strcmp(pMapName, "aresden") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME22);//"¾Æ·¹½ºµ§"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME22);//"¾Æ·¹½ºµ§"
 		return 11;
 	}
 	else if (strcmp(pMapName, "dglv2") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME25);//"´øÁ¯ ÁöÇÏ 2Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME25);//"´øÁ¯ ÁöÇÏ 2Ãþ"
 		return 12;
 	}
 	else if (strcmp(pMapName, "dglv3") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME26);//"´øÁ¯ ÁöÇÏ 3Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME26);//"´øÁ¯ ÁöÇÏ 3Ãþ"
 		return 13;
 	}
 	else if (strcmp(pMapName, "dglv4") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME53);//"´øÁ¯ ÁöÇÏ 4Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME53);//"´øÁ¯ ÁöÇÏ 4Ãþ"
 		return 14;
 	}
 	else if (strcmp(pMapName, "elvined1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME23);//"¿¤¹ÙÀÎ ´øÁ¯ ÁöÇÏ 1Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME23);//"¿¤¹ÙÀÎ ´øÁ¯ ÁöÇÏ 1Ãþ"
 		return 15;
 	}
 	else if (strcmp(pMapName, "aresdend1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME21);//"¾Æ·¹½ºµ§ ´øÁ¯ ÁöÇÏ 1Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME21);//"¾Æ·¹½ºµ§ ´øÁ¯ ÁöÇÏ 1Ãþ"
 		return 16;
 	}
 	else if (strcmp(pMapName, "bisle") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME27);//"ºí¸®µù ¾ÆÀÏ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME27);//"ºí¸®µù ¾ÆÀÏ"
 		return 17;
 	}
 	else if (strcmp(pMapName, "toh1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME60);//"Å¸¿ö ¿Àºê Çï 1Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME60);//"Å¸¿ö ¿Àºê Çï 1Ãþ"
 		return 18;
 	}
 	else if (strcmp(pMapName, "toh2") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME61);//"Å¸¿ö ¿Àºê Çï 2Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME61);//"Å¸¿ö ¿Àºê Çï 2Ãþ"
 		return 19;
 	}
 	else if (strcmp(pMapName, "toh3") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME62);//"Å¸¿ö ¿Àºê Çï 3Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME62);//"Å¸¿ö ¿Àºê Çï 3Ãþ"
 		return 20;
 	}
 	else if (strcmp(pMapName, "middled1x") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME58);//"¹Ìµé·£µå ±¤»ê"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME58);//"¹Ìµé·£µå ±¤»ê"
 		return 21;
 	}
 	else if (strcmp(pMapName, "middled1n") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME59);//"¹Ìµé·£µå ´øÁ¯" 
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME59);//"¹Ìµé·£µå ´øÁ¯" 
 		return 22;
 	}
 	else if (strcmp(pMapName, "2ndmiddle") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME65);//"¾à¼ÓÀÇ ¶¥"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME65);//"¾à¼ÓÀÇ ¶¥"
 		return 23;
 	}
 	else if (strcmp(pMapName, "icebound") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME66);//"¾ÆÀÌ½º¸Ê"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME66);//"¾ÆÀÌ½º¸Ê"
 		return 24;
 	}
 	else if (strcmp(pMapName, "cityhall_1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME35);//"¾Æ·¹½ºµ§ ½ÃÆ¼È¦"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME35);//"¾Æ·¹½ºµ§ ½ÃÆ¼È¦"
 		return -1;
 	}
 	else if (strcmp(pMapName, "cityhall_2") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME36);//"¿¤¹ÙÀÎ ½ÃÆ¼È¦"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME36);//"¿¤¹ÙÀÎ ½ÃÆ¼È¦"
 		return -1;
 	}
 	else if (strcmp(pMapName, "gldhall_1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME37);//"¾Æ·¹½ºµ§ ±æµåÈ¦"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME37);//"¾Æ·¹½ºµ§ ±æµåÈ¦"
 		return -1;
 	}
 	else if (strcmp(pMapName, "gldhall_2") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME38);//"¿¤¹ÙÀÎ ±æµåÈ¦" 
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME38);//"¿¤¹ÙÀÎ ±æµåÈ¦" 
 		return -1;
 	}
 	else if (memcmp(pMapName, "bsmith_1", 8) == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME33);//"¾Æ·¹½ºµ§ ´ëÀå°£"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME33);//"¾Æ·¹½ºµ§ ´ëÀå°£"
 		return -1;
 	}
 	else if (memcmp(pMapName, "bsmith_2", 8) == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME34);//"¿¤¹ÙÀÎ ´ëÀå°£" 
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME34);//"¿¤¹ÙÀÎ ´ëÀå°£" 
 		return -1;
 	}
 	else if (memcmp(pMapName, "gshop_1", 7) == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME39);//"¾Æ·¹½ºµ§ ÀâÈ­»óÁ¡" 
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME39);//"¾Æ·¹½ºµ§ ÀâÈ­»óÁ¡" 
 		return -1;
 	}
 	else if (memcmp(pMapName, "gshop_2", 7) == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME40);//"¿¤¹ÙÀÎ ÀâÈ­»óÁ¡"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME40);//"¿¤¹ÙÀÎ ÀâÈ­»óÁ¡"
 		return -1;
 	}
 	else if (memcmp(pMapName, "wrhus_1", 7) == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME43);//"¾Æ·¹½ºµ§ ¹°Ç° º¸°ü¼Ò"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME43);//"¾Æ·¹½ºµ§ ¹°Ç° º¸°ü¼Ò"
 		return -1;
 	}
 	else if (memcmp(pMapName, "wrhus_2", 7) == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME44);//"¿¤¹ÙÀÎ ¹°Ç° º¸°ü¼Ò"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME44);//"¿¤¹ÙÀÎ ¹°Ç° º¸°ü¼Ò"
 		return -1;
 	}
 	else if (strcmp(pMapName, "arewrhus") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME45);//"¾Æ·¹½ºµ§ ¹°Ç° º¸°ü¼Ò"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME45);//"¾Æ·¹½ºµ§ ¹°Ç° º¸°ü¼Ò"
 		return -1;
 	}
 	else if (strcmp(pMapName, "elvwrhus") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME46);//"¿¤¹ÙÀÎ ¹°Ç° º¸°ü¼Ò"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME46);//"¿¤¹ÙÀÎ ¹°Ç° º¸°ü¼Ò"
 		return -1;
 	}
 	else if (strcmp(pMapName, "wzdtwr_1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME41);//"¾Æ·¹½ºµ§ ¸¶¹ýÅ¸¿ö"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME41);//"¾Æ·¹½ºµ§ ¸¶¹ýÅ¸¿ö"
 		return -1;
 	}
 	else if (strcmp(pMapName, "wzdtwr_2") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME42);//"¿¤¹ÙÀÎ ¸¶¹ýÅ¸¿ö"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME42);//"¿¤¹ÙÀÎ ¸¶¹ýÅ¸¿ö"
 		return -1;
 	}
 	else if (strcmp(pMapName, "cath_1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME47);//"¾Æ·¹½Ã¿£ÀÇ ¼º´ç"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME47);//"¾Æ·¹½Ã¿£ÀÇ ¼º´ç"
 		return -1;
 	}
 	else if (strcmp(pMapName, "cath_2") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME48);//"¿¤µð´Ï¿¤ÀÇ ¼º´ç"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME48);//"¿¤µð´Ï¿¤ÀÇ ¼º´ç"
 		return -1;
 	}
 	else if (strcmp(pMapName, "resurr1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME54);//"¾Æ·¹½ºµ§ÀÇ ºÎÈ°ÀÇ °ø°£"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME54);//"¾Æ·¹½ºµ§ÀÇ ºÎÈ°ÀÇ °ø°£"
 		return -1;
 	}
 	else if (strcmp(pMapName, "resurr2") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME55);//"¿¤¹ÙÀÎÀÇ ºÎÈ°ÀÇ °ø°£"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME55);//"¿¤¹ÙÀÎÀÇ ºÎÈ°ÀÇ °ø°£"
 		return -1;
 	}
 	else if (strcmp(pMapName, "arebrk11") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME4);//"¾Æ·¹½ºµ§ ÈÆ·Ã¼Ò ÁöÇÏ 1Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME4);//"¾Æ·¹½ºµ§ ÈÆ·Ã¼Ò ÁöÇÏ 1Ãþ"
 		return -1;
 	}
 	else if (strcmp(pMapName, "arebrk12") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME5);//"¾Æ·¹½ºµ§ ÈÆ·Ã¼Ò ÁöÇÏ 1Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME5);//"¾Æ·¹½ºµ§ ÈÆ·Ã¼Ò ÁöÇÏ 1Ãþ"
 		return -1;
 	}
 	else if (strcmp(pMapName, "arebrk21") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME6);//"¾Æ·¹½ºµ§ ÈÆ·Ã¼Ò ÁöÇÏ 2Ãþ"
+		strcpy_s(pName, 120, GET_OFFICIAL_MAP_NAME6);//"¾Æ·¹½ºµ§ ÈÆ·Ã¼Ò ÁöÇÏ 2Ãþ"
 		return -1;
 	}
 	else if (strcmp(pMapName, "arebrk22") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME7);//"¾Æ·¹½ºµ§ ÈÆ·Ã¼Ò ÁöÇÏ 2Ãþ"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME7);//"¾Æ·¹½ºµ§ ÈÆ·Ã¼Ò ÁöÇÏ 2Ãþ"
 		return -1;
 	}
 	else if (strcmp(pMapName, "elvbrk11") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME8);//"¿¤¹ÙÀÎ ÈÆ·Ã¼Ò ÁöÇÏ 1Ãþ"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME8);//"¿¤¹ÙÀÎ ÈÆ·Ã¼Ò ÁöÇÏ 1Ãþ"
 		return -1;
 	}
 	else if (strcmp(pMapName, "elvbrk12") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME9);//"¿¤¹ÙÀÎ ÈÆ·Ã¼Ò ÁöÇÏ 1Ãþ"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME9);//"¿¤¹ÙÀÎ ÈÆ·Ã¼Ò ÁöÇÏ 1Ãþ"
 		return -1;
 	}
 	else if (strcmp(pMapName, "elvbrk21") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME10);//"¿¤¹ÙÀÎ ÈÆ·Ã¼Ò ÁöÇÏ 2Ãþ"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME10);//"¿¤¹ÙÀÎ ÈÆ·Ã¼Ò ÁöÇÏ 2Ãþ"
 		return -1;
 	}
 	else if (strcmp(pMapName, "elvbrk22") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME11);//"¿¤¹ÙÀÎ ÈÆ·Ã¼Ò ÁöÇÏ 2Ãþ"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME11);//"¿¤¹ÙÀÎ ÈÆ·Ã¼Ò ÁöÇÏ 2Ãþ"
 		return -1;
 	}
 	else if (strcmp(pMapName, "fightzone1") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME12);//"1¹ø »çÅõÀå"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME12);//"1¹ø »çÅõÀå"
 		return -1;
 	}
 	else if (strcmp(pMapName, "fightzone2") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME13);//"2¹ø »çÅõÀå"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME13);//"2¹ø »çÅõÀå"
 		return -1;
 	}
 	else if (strcmp(pMapName, "fightzone3") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME14);//"3¹ø »çÅõÀå"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME14);//"3¹ø »çÅõÀå"
 		return -1;
 	}
 	else if (strcmp(pMapName, "fightzone4") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME15);//"4¹ø »çÅõÀå"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME15);//"4¹ø »çÅõÀå"
 		return -1;
 	}
 	else if (strcmp(pMapName, "fightzone5") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME16);//"5¹ø »çÅõÀå"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME16);//"5¹ø »çÅõÀå"
 		return -1;
 	}
 	else if (strcmp(pMapName, "fightzone6") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME17);//"6¹ø »çÅõÀå"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME17);//"6¹ø »çÅõÀå"
 		return -1;
 	}
 	else if (strcmp(pMapName, "fightzone7") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME18);//"7¹ø »çÅõÀå"  
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME18);//"7¹ø »çÅõÀå"  
 		return -1;
 	}
 	else if (strcmp(pMapName, "fightzone8") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME19);//"8¹ø »çÅõÀå"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME19);//"8¹ø »çÅõÀå"
 		return -1;
 	}
 	else if (strcmp(pMapName, "fightzone9") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME20);//"»ó¾îÀÇ ÄÝ·Î¼¼¿ò °æ±âÀå"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME20);//"»ó¾îÀÇ ÄÝ·Î¼¼¿ò °æ±âÀå"
 		return -1;
 	}
 	else if (strcmp(pMapName, "arejail") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME63);//"¾Æ·¹½ºµ§ °¨¿Á"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME63);//"¾Æ·¹½ºµ§ °¨¿Á"
 		return -1;
 	}
 	else if (strcmp(pMapName, "elvjail") == 0) {
-		strcpy(pName, GET_OFFICIAL_MAP_NAME64);//"¿¤¹ÙÀÎ °¨¿Á"
+		strcpy_s(pName, 120,GET_OFFICIAL_MAP_NAME64);//"¿¤¹ÙÀÎ °¨¿Á"
 		return -1;
 	}
 	else {
-		strcpy(pName, pMapName);
+		strcpy_s(pName, 120,pMapName);
 		return -1;
 	}
 }
@@ -34005,7 +33188,7 @@ BOOL CGame::bCheckLocalChatCommand(const char* pMsg)
 
 	ZeroMemory(cBuff, sizeof(cBuff));
 	ZeroMemory(cName, sizeof(cName));
-	strcpy(cBuff, pMsg);
+	strcpy_s(cBuff, pMsg);
 
 	//2002.11.1 ¾È»óÇÏ Ãß°¡. ÇÁ·¹ÀÓ º¸¿©ÁÖ±â.
 	if (memcmp(cBuff, "/showframe", 10)==0)
@@ -34063,7 +33246,7 @@ BOOL CGame::bCheckLocalChatCommand(const char* pMsg)
 			if (strlen(token) <= 10)
 			{
 				// °°Àº ÀÌ¸§À» °¡Áø Ä³¸¯ÅÍ°¡ ¸®½ºÆ®¿¡ ¾ø´Ù.
-				strcpy(cName, token);
+				strcpy_s(cName, token);
 				if (memcmp(m_cPlayerName, cName, 10) == 0)
 				{
 					AddEventList(BCHECK_LOCAL_CHAT_COMMAND2, 10);//"ÀÚ±â ÀÚ½ÅÀÇ ¸Þ½ÃÁö¸¦ ¼ö½Å °ÅºÎÇÒ ¼ö´Â ¾ø½À´Ï´Ù."
@@ -34093,11 +33276,11 @@ BOOL CGame::bCheckLocalChatCommand(const char* pMsg)
 		{
 			if (strlen(token) <= 10)
 			{
-				strcpy(cName, token);
+				strcpy_s(cName, token);
 				if (m_pExID != NULL)
 				{
 					ZeroMemory(cTemp, sizeof(cTemp));
-					strcpy(cTemp, m_pExID->m_pMsg);
+					strcpy_s(cTemp, m_pExID->m_pMsg);
 					if (memcmp(cTemp, cName, 10) == 0)
 					{
 						// ÀÌ¹Ì °°Àº ÀÌ¸§ÀÌ ¸®½ºÆ®¿¡ ÀÖ´Ù. 
@@ -34277,7 +33460,7 @@ void CGame::NpcTalkHandler(const char*pData)
 			
 			ZeroMemory(cTxt, sizeof(cTxt));
 			if (memcmp(cTargetName, "NONE", 4) == 0) {
-				strcpy(cTxt, NPC_TALK_HANDLER17);//"À§  Ä¡: »ó°ü¾øÀ½"
+				strcpy_s(cTxt, NPC_TALK_HANDLER17);//"À§  Ä¡: »ó°ü¾øÀ½"
 				m_pMsgTextList2[iIndex] = new class CMsg(NULL, cTxt, NULL);	
 				iIndex++;
 			}
@@ -34310,7 +33493,7 @@ void CGame::NpcTalkHandler(const char*pData)
 			
 			ZeroMemory(cTxt, sizeof(cTxt));
 			if (memcmp(cTargetName, "NONE", 4) == 0) {
-				strcpy(cTxt, NPC_TALK_HANDLER22);//"À§  Ä¡: »ó°ü¾øÀ½"
+				strcpy_s(cTxt, NPC_TALK_HANDLER22);//"À§  Ä¡: »ó°ü¾øÀ½"
 				m_pMsgTextList2[iIndex] = new class CMsg(NULL, cTxt, NULL);	
 				iIndex++;
 			}
@@ -34342,33 +33525,33 @@ void CGame::NpcTalkHandler(const char*pData)
 			iIndex++;
 
 			ZeroMemory(cTxt, sizeof(cTxt));
-            strcpy(cTxt, NPC_TALK_HANDLER27);//"Àû±¹ÀÇ ÈÄ¹æ Áö¿ªÀ¸·Î °ð¹Ù·Î ÅÚ·¹Æ÷Æ®"
+            strcpy_s(cTxt, NPC_TALK_HANDLER27);//"Àû±¹ÀÇ ÈÄ¹æ Áö¿ªÀ¸·Î °ð¹Ù·Î ÅÚ·¹Æ÷Æ®"
 			m_pMsgTextList2[iIndex] = new class CMsg(NULL, cTxt, NULL);	
 			iIndex++;
 
 			ZeroMemory(cTxt, sizeof(cTxt));
-            strcpy(cTxt, NPC_TALK_HANDLER28);//"ÇÏ¿© ÁÖ¿ä ½Ã¼³ ÆÄ±«¸¦ ½ÃµµÇÏ°Å³ª,"
+            strcpy_s(cTxt, NPC_TALK_HANDLER28);//"ÇÏ¿© ÁÖ¿ä ½Ã¼³ ÆÄ±«¸¦ ½ÃµµÇÏ°Å³ª,"
 			m_pMsgTextList2[iIndex] = new class CMsg(NULL, cTxt, NULL);	
 			iIndex++;
 
 			ZeroMemory(cTxt, sizeof(cTxt));
-            strcpy(cTxt, NPC_TALK_HANDLER29);//"°Ô¸±¶ó È°µ¿À» ÅëÇÏ¿© ÀûµéÀÇ È°µ¿À»"
+            strcpy_s(cTxt, NPC_TALK_HANDLER29);//"°Ô¸±¶ó È°µ¿À» ÅëÇÏ¿© ÀûµéÀÇ È°µ¿À»"
 			m_pMsgTextList2[iIndex] = new class CMsg(NULL, cTxt, NULL);	
 			iIndex++;
 
 			ZeroMemory(cTxt, sizeof(cTxt));
-            strcpy(cTxt, NPC_TALK_HANDLER30);//"¹æÇØÇÏ´Â ÀÓ¹«."
+            strcpy_s(cTxt, NPC_TALK_HANDLER30);//"¹æÇØÇÏ´Â ÀÓ¹«."
 			m_pMsgTextList2[iIndex] = new class CMsg(NULL, cTxt, NULL);	
 			iIndex++;
 
 			ZeroMemory(cTxt, sizeof(cTxt));
-			strcpy(cTxt, " ");
+			strcpy_s(cTxt, " ");
 			m_pMsgTextList2[iIndex] = new class CMsg(NULL, cTxt, NULL);	
 			iIndex++;
 			
 			ZeroMemory(cTxt, sizeof(cTxt));
 			if (memcmp(cTargetName, "NONE", 4) == 0) {
-				strcpy(cTxt, NPC_TALK_HANDLER31);//"ÅÚ·¹Æ÷Æ® ¸ñÀûÁö: ¿¹Ãø ºÒ°¡"
+				strcpy_s(cTxt, NPC_TALK_HANDLER31);//"ÅÚ·¹Æ÷Æ® ¸ñÀûÁö: ¿¹Ãø ºÒ°¡"
 				m_pMsgTextList2[iIndex] = new class CMsg(NULL, cTxt, NULL);	
 				iIndex++;
 			}
@@ -34413,99 +33596,99 @@ void CGame::GetNpcName(short sType, char*pName)
 {
 	switch (sType)
 	{
-	case 10: strcpy(pName, NPC_NAME_SLIME); break;//"½½¶óÀÓ"
-	case 11: strcpy(pName, NPC_NAME_SKELETON); break;//"½ºÄÌ·¹Åæ"
-	case 12: strcpy(pName, NPC_NAME_STONEGOLEM); break;//"½ºÅæ °ñ·½"
-	case 13: strcpy(pName, NPC_NAME_CYCLOPS); break;//"½ÎÀÌÅ¬·Ó½º"
-	case 14: strcpy(pName, NPC_NAME_ORC); break;//"¿ÀÅ©"
-	case 15: strcpy(pName, NPC_NAME_SHOP_KEEPER); break;//"»óÁ¡ ÁÖÀÎ"
-	case 16: strcpy(pName, NPC_NAME_GIANTANT); break;//"ÀÚÀÌ¾ÈÆ® ¾ØÆ®"
-	case 17: strcpy(pName, NPC_NAME_GIANTSCORPION); break;//"ÀÚÀÌ¾ÈÆ® ½ºÄÝÇÇ¿Â"
-	case 18: strcpy(pName, NPC_NAME_ZOMBIE); break;//"Á»ºñ"
-	case 19: strcpy(pName, NPC_NAME_MAGICIAN); break;//"¸¶¹ý»ç"
-	case 20: strcpy(pName, NPC_NAME_WAREHOUSE_KEEPER); break;//"Ã¢°í ÁÖÀÎ"
-	case 21: strcpy(pName, NPC_NAME_GUARD); break;//"°æºñº´"
-	case 22: strcpy(pName, NPC_NAME_SNAKE); break;//"½ÖµÎ¹ì"
-	case 23: strcpy(pName, NPC_NAME_CLAYGOLEM); break;//"Å¬·¹ÀÌ °ñ·½"
-	case 24: strcpy(pName, NPC_NAME_BLACKSMITH_KEEPER); break;//"´ëÀå°£ ÁÖÀÎ"
-	case 25: strcpy(pName, NPC_NAME_CITYHALL_OFFICER); break;//"½ÃÃ» ÇàÁ¤°ü"
-	case 26: strcpy(pName, NPC_NAME_GUILDHALL_OFFICER); break;//"±æµåÁ¶ÇÕ »ç¹«Àå" 
-	case 27: strcpy(pName, NPC_NAME_HELHOUND); break;//"ÇïÇÏ¿îµå"
-	case 28: strcpy(pName, NPC_NAME_TROLL); break;//"Æ®·Ñ"
-	case 29: strcpy(pName, NPC_NAME_OGRE); break;//"¿À¿ì°Å"
-	case 30: strcpy(pName, NPC_NAME_LICHE); break;//"¸®Ä¡"
-	case 31: strcpy(pName, NPC_NAME_DEMON); break;//"µ¥¸ó"
-	case 32: strcpy(pName, NPC_NAME_UNICORN); break;//"À¯´ÏÄÜ"
-	case 33: strcpy(pName, NPC_NAME_WEREWOLF); break;//"¿þ¾î¿ïÇÁ" 
-	case 34: strcpy(pName, NPC_NAME_DUMMY); break;//"´õ¹Ì"
-	case 35: strcpy(pName, NPC_NAME_ENERGYSPHERE); break;//"¿¡³ÊÁö ½ºÇÇ¾î"
+	case 10: strcpy_s(pName, 32, NPC_NAME_SLIME); break;//"½½¶óÀÓ"
+	case 11: strcpy_s(pName, 32, NPC_NAME_SKELETON); break;//"½ºÄÌ·¹Åæ"
+	case 12: strcpy_s(pName, 32, NPC_NAME_STONEGOLEM); break;//"½ºÅæ °ñ·½"
+	case 13: strcpy_s(pName, 32, NPC_NAME_CYCLOPS); break;//"½ÎÀÌÅ¬·Ó½º"
+	case 14: strcpy_s(pName, 32, NPC_NAME_ORC); break;//"¿ÀÅ©"
+	case 15: strcpy_s(pName, 32, NPC_NAME_SHOP_KEEPER); break;//"»óÁ¡ ÁÖÀÎ"
+	case 16: strcpy_s(pName, 32, NPC_NAME_GIANTANT); break;//"ÀÚÀÌ¾ÈÆ® ¾ØÆ®"
+	case 17: strcpy_s(pName, 32, NPC_NAME_GIANTSCORPION); break;//"ÀÚÀÌ¾ÈÆ® ½ºÄÝÇÇ¿Â"
+	case 18: strcpy_s(pName, 32, NPC_NAME_ZOMBIE); break;//"Á»ºñ"
+	case 19: strcpy_s(pName, 32, NPC_NAME_MAGICIAN); break;//"¸¶¹ý»ç"
+	case 20: strcpy_s(pName, 32, NPC_NAME_WAREHOUSE_KEEPER); break;//"Ã¢°í ÁÖÀÎ"
+	case 21: strcpy_s(pName, 32, NPC_NAME_GUARD); break;//"°æºñº´"
+	case 22: strcpy_s(pName, 32, NPC_NAME_SNAKE); break;//"½ÖµÎ¹ì"
+	case 23: strcpy_s(pName, 32, NPC_NAME_CLAYGOLEM); break;//"Å¬·¹ÀÌ °ñ·½"
+	case 24: strcpy_s(pName, 32, NPC_NAME_BLACKSMITH_KEEPER); break;//"´ëÀå°£ ÁÖÀÎ"
+	case 25: strcpy_s(pName, 32, NPC_NAME_CITYHALL_OFFICER); break;//"½ÃÃ» ÇàÁ¤°ü"
+	case 26: strcpy_s(pName, 32, NPC_NAME_GUILDHALL_OFFICER); break;//"±æµåÁ¶ÇÕ »ç¹«Àå" 
+	case 27: strcpy_s(pName, 32, NPC_NAME_HELHOUND); break;//"ÇïÇÏ¿îµå"
+	case 28: strcpy_s(pName, 32, NPC_NAME_TROLL); break;//"Æ®·Ñ"
+	case 29: strcpy_s(pName, 32, NPC_NAME_OGRE); break;//"¿À¿ì°Å"
+	case 30: strcpy_s(pName, 32, NPC_NAME_LICHE); break;//"¸®Ä¡"
+	case 31: strcpy_s(pName, 32, NPC_NAME_DEMON); break;//"µ¥¸ó"
+	case 32: strcpy_s(pName, 32, NPC_NAME_UNICORN); break;//"À¯´ÏÄÜ"
+	case 33: strcpy_s(pName, 32, NPC_NAME_WEREWOLF); break;//"¿þ¾î¿ïÇÁ" 
+	case 34: strcpy_s(pName, 32, NPC_NAME_DUMMY); break;//"´õ¹Ì"
+	case 35: strcpy_s(pName, 32, NPC_NAME_ENERGYSPHERE); break;//"¿¡³ÊÁö ½ºÇÇ¾î"
 	case 36:
-		if (_tmp_sAppr2 != 0) strcpy(pName, NPC_NAME_ARROWGUARDTOWER_CK);//"¾Ö·Î¿ì °¡µå Å¸¿ö ÄÁ½ºÆ®·°¼Ç Å°Æ®"
-		else strcpy(pName, NPC_NAME_ARROWGUARDTOWER);//"¾Ö·Î¿ì °¡µå Å¸¿ö"
+		if (_tmp_sAppr2 != 0) strcpy_s(pName, 32, NPC_NAME_ARROWGUARDTOWER_CK);//"¾Ö·Î¿ì °¡µå Å¸¿ö ÄÁ½ºÆ®·°¼Ç Å°Æ®"
+		else strcpy_s(pName, 32, NPC_NAME_ARROWGUARDTOWER);//"¾Ö·Î¿ì °¡µå Å¸¿ö"
 		break;
 	case 37:
-		if (_tmp_sAppr2 != 0) strcpy(pName, NPC_NAME_CANNONGUARDTOWER_CK);//"Ä³³í °¡µå Å¸¿ö ÄÁ½ºÆ®·°¼Ç Å°Æ®"
-		else strcpy(pName, NPC_NAME_CANNONGUARDTOWER);//"Ä³³í °¡µå Å¸¿ö"
+		if (_tmp_sAppr2 != 0) strcpy_s(pName, 32, NPC_NAME_CANNONGUARDTOWER_CK);//"Ä³³í °¡µå Å¸¿ö ÄÁ½ºÆ®·°¼Ç Å°Æ®"
+		else strcpy_s(pName, 32, NPC_NAME_CANNONGUARDTOWER);//"Ä³³í °¡µå Å¸¿ö"
 		break;
 	case 38:
-		if (_tmp_sAppr2 != 0) strcpy(pName, NPC_NAME_MANACOLLECTOR_CK);//"¸¶³ª ÄÝ·ºÅÍ ÄÁ½ºÆ®·°¼Ç Å°Æ®"
-		else strcpy(pName, NPC_NAME_MANACOLLECTOR);//"¸¶³ª ÄÝ·ºÅÍ"
+		if (_tmp_sAppr2 != 0) strcpy_s(pName, 32, NPC_NAME_MANACOLLECTOR_CK);//"¸¶³ª ÄÝ·ºÅÍ ÄÁ½ºÆ®·°¼Ç Å°Æ®"
+		else strcpy_s(pName, 32, NPC_NAME_MANACOLLECTOR);//"¸¶³ª ÄÝ·ºÅÍ"
 		break;
 	case 39:
-		if (_tmp_sAppr2 != 0) strcpy(pName, NPC_NAME_DETECTOR_CK);//"µðÅØÅÍ ÄÁ½ºÆ®·°¼Ç Å°Æ®"
-		else strcpy(pName, NPC_NAME_DETECTOR);//"µðÅØÅÍ"
+		if (_tmp_sAppr2 != 0) strcpy_s(pName, 32, NPC_NAME_DETECTOR_CK);//"µðÅØÅÍ ÄÁ½ºÆ®·°¼Ç Å°Æ®"
+		else strcpy_s(pName, 32, NPC_NAME_DETECTOR);//"µðÅØÅÍ"
 		break;
-	case 40: strcpy(pName, NPC_NAME_ENERGYSHIELD); break;//"¿¡³ÊÁö ½Çµå Á¦³×·¹ÀÌÅÍ"  
-	case 41: strcpy(pName, NPC_NAME_GRANDMAGICGENERATOR); break;//"±×·£µå ¸ÅÁ÷ Á¦³×·¹ÀÌÅÍ"
-	case 42: strcpy(pName, NPC_NAME_MANASTONE); break;//"¸¶³ª ½ºÅæ"
-	case 43: strcpy(pName, NPC_NAME_LIGHTWARBEETLE); break;//"¶óÀÌÆ® ¿ö ºñÆ²"
-	case 44: strcpy(pName, NPC_NAME_GODSHANDKNIGHT); break;//"°íÁî ÇÚµå ³ªÀÌÆ®"
-	case 45: strcpy(pName, NPC_NAME_GODSHANDKNIGHT_CK); break;//"°íÁî ÇÚµå ³ªÀÌÆ® ±âº´"
-	case 46: strcpy(pName, NPC_NAME_TEMPLEKNIGHT); break;//"ÅÛÇÃ ³ªÀÌÆ®"
-	case 47: strcpy(pName, NPC_NAME_BATTLEGOLEM); break;//"¹èÆ² °ñ·½"
-	case 48: strcpy(pName, NPC_NAME_STALKER); break;//"½ºÅ¸Ä¿"
-	case 49: strcpy(pName, NPC_NAME_HELLCLAW); break;//"ÇïÅ¬¶ó¿ì"
-	case 50: strcpy(pName, NPC_NAME_TIGERWORM); break;//"Å¸ÀÌ°Å¿ú"
-	case 51: strcpy(pName, NPC_NAME_CATAPULT); break;//"Ä³ÅÍÆÈÆ®"
-	case 52: strcpy(pName, NPC_NAME_GARGOYLE); break;//"°¡°íÀÏ"
-	case 53: strcpy(pName, NPC_NAME_BEHOLDER); break;//"ºñÈ¦´õ"
-	case 54: strcpy(pName, NPC_NAME_DARKELF); break;//"´ÙÅ© ¿¤ÇÁ"
-	case 55: strcpy(pName, NPC_NAME_RABBIT); break;//"Åä³¢"
-	case 56: strcpy(pName, NPC_NAME_CAT); break;//"°í¾çÀÌ"
-	case 57: strcpy(pName, NPC_NAME_FROG); break;//"ÀÚÀÌ¾ðÆ® ÇÁ·Î±×"
-	case 58: strcpy(pName, NPC_NAME_MOUNTAIN_GIANT); break;//"¸¶¿îÆ¾ ÀÚÀÌ¾ðÆ®"
-	case 59: strcpy(pName, NPC_NAME_ETTIN); break;//"¿¡Æ¾"
-	case 60: strcpy(pName, NPC_NAME_CANNIBAL); break;//"Ä«´Ï¹ß ÇÃ·£Æ®"
-	case 61: strcpy(pName, NPC_NAME_RUDOLPH); break;//"¹ÙÀÌ½º·çµ¹ÇÁ"
-	case 62: strcpy(pName, NPC_NAME_DIREBOAR); break;//"¸äµÅÁö"
-	case 63: strcpy(pName, NPC_NAME_FROST); break;//"¾ÆÀÌ½ºÆÃÄ¿º§"
+	case 40: strcpy_s(pName, 32, NPC_NAME_ENERGYSHIELD); break;//"¿¡³ÊÁö ½Çµå Á¦³×·¹ÀÌÅÍ"  
+	case 41: strcpy_s(pName, 32, NPC_NAME_GRANDMAGICGENERATOR); break;//"±×·£µå ¸ÅÁ÷ Á¦³×·¹ÀÌÅÍ"
+	case 42: strcpy_s(pName, 32, NPC_NAME_MANASTONE); break;//"¸¶³ª ½ºÅæ"
+	case 43: strcpy_s(pName, 32, NPC_NAME_LIGHTWARBEETLE); break;//"¶óÀÌÆ® ¿ö ºñÆ²"
+	case 44: strcpy_s(pName, 32, NPC_NAME_GODSHANDKNIGHT); break;//"°íÁî ÇÚµå ³ªÀÌÆ®"
+	case 45: strcpy_s(pName, 32, NPC_NAME_GODSHANDKNIGHT_CK); break;//"°íÁî ÇÚµå ³ªÀÌÆ® ±âº´"
+	case 46: strcpy_s(pName, 32, NPC_NAME_TEMPLEKNIGHT); break;//"ÅÛÇÃ ³ªÀÌÆ®"
+	case 47: strcpy_s(pName, 32, NPC_NAME_BATTLEGOLEM); break;//"¹èÆ² °ñ·½"
+	case 48: strcpy_s(pName, 32, NPC_NAME_STALKER); break;//"½ºÅ¸Ä¿"
+	case 49: strcpy_s(pName, 32, NPC_NAME_HELLCLAW); break;//"ÇïÅ¬¶ó¿ì"
+	case 50: strcpy_s(pName, 32, NPC_NAME_TIGERWORM); break;//"Å¸ÀÌ°Å¿ú"
+	case 51: strcpy_s(pName, 32, NPC_NAME_CATAPULT); break;//"Ä³ÅÍÆÈÆ®"
+	case 52: strcpy_s(pName, 32, NPC_NAME_GARGOYLE); break;//"°¡°íÀÏ"
+	case 53: strcpy_s(pName, 32, NPC_NAME_BEHOLDER); break;//"ºñÈ¦´õ"
+	case 54: strcpy_s(pName, 32, NPC_NAME_DARKELF); break;//"´ÙÅ© ¿¤ÇÁ"
+	case 55: strcpy_s(pName, 32, NPC_NAME_RABBIT); break;//"Åä³¢"
+	case 56: strcpy_s(pName, 32, NPC_NAME_CAT); break;//"°í¾çÀÌ"
+	case 57: strcpy_s(pName, 32, NPC_NAME_FROG); break;//"ÀÚÀÌ¾ðÆ® ÇÁ·Î±×"
+	case 58: strcpy_s(pName, 32, NPC_NAME_MOUNTAIN_GIANT); break;//"¸¶¿îÆ¾ ÀÚÀÌ¾ðÆ®"
+	case 59: strcpy_s(pName, 32, NPC_NAME_ETTIN); break;//"¿¡Æ¾"
+	case 60: strcpy_s(pName, 32, NPC_NAME_CANNIBAL); break;//"Ä«´Ï¹ß ÇÃ·£Æ®"
+	case 61: strcpy_s(pName, 32, NPC_NAME_RUDOLPH); break;//"¹ÙÀÌ½º·çµ¹ÇÁ"
+	case 62: strcpy_s(pName, 32, NPC_NAME_DIREBOAR); break;//"¸äµÅÁö"
+	case 63: strcpy_s(pName, 32, NPC_NAME_FROST); break;//"¾ÆÀÌ½ºÆÃÄ¿º§"
 	case 64:
 		{
 			switch((_tmp_sAppr2 & 0xFF00)>>8)
 			{
 			case 1:
-				strcpy(pName, NPC_NAME_WATERMELON);
+				strcpy_s(pName, 32, NPC_NAME_WATERMELON);
 				break;
 			case 2:
-				strcpy(pName, NPC_NAME_PUMPKIN);
+				strcpy_s(pName, 32, NPC_NAME_PUMPKIN);
 				break;
 			case 3:
-				strcpy(pName, NPC_NAME_GARLIC);
+				strcpy_s(pName, 32, NPC_NAME_GARLIC);
 				break;
 			case 4:
-				strcpy(pName, NPC_NAME_BARLEY);
+				strcpy_s(pName, 32, NPC_NAME_BARLEY);
 				break;
 			default:
-				strcpy(pName, NPC_NAME_CROP);
+				strcpy_s(pName, 32, NPC_NAME_CROP);
 				break;
 			}
 		}
 		break;
-	case 65: strcpy(pName, NPC_NAME_ICEGOLEM); break;//"¾ÆÀÌ½º°ñ·½"
-	case 66: strcpy(pName, NPC_NAME_WYVERN); break;//"¿ÍÀÌ¹ø"
-	case 67: strcpy(pName, NPC_NAME_MCGAFFIN); break;//"Ã»³â"
-	case 68: strcpy(pName, NPC_NAME_PERRY); break;//"Ã³³à"
-	case 69: strcpy(pName, NPC_NAME_DEVLIN); break;//"¸¶À»¸¶¹ý»ç"
+	case 65: strcpy_s(pName, 32, NPC_NAME_ICEGOLEM); break;//"¾ÆÀÌ½º°ñ·½"
+	case 66: strcpy_s(pName, 32, NPC_NAME_WYVERN); break;//"¿ÍÀÌ¹ø"
+	case 67: strcpy_s(pName, 32, NPC_NAME_MCGAFFIN); break;//"Ã»³â"
+	case 68: strcpy_s(pName, 32, NPC_NAME_PERRY); break;//"Ã³³à"
+	case 69: strcpy_s(pName, 32, NPC_NAME_DEVLIN); break;//"¸¶À»¸¶¹ý»ç"
 	}
 }
 
@@ -34522,17 +33705,17 @@ void CGame::GetItemName(CItem *pItem, char*pStr1, char*pStr2, char*pStr3)
 	ZeroMemory(pStr2, sizeof(pStr2));
 	ZeroMemory(pStr3, sizeof(pStr3));
 	
-	strcpy(cName, pItem->m_cName);
+	strcpy_s(cName, pItem->m_cName);
 	for (i = 0; i < DEF_MAXITEMNAMES; i++)
 	if ((m_pItemNameList[i] != NULL) && (strcmp(m_pItemNameList[i]->m_cOriginName, pItem->m_cName) == 0)) {
-		strcpy(cName, m_pItemNameList[i]->m_cName);
+		strcpy_s(cName, m_pItemNameList[i]->m_cName);
 		break;
 	}
 
 	if ((pItem->m_dwAttribute & 0x00000001) != 0) {
 		// Custom Made ItemÀÌ´Ù.
 		m_bIsSpecial = TRUE;
-		strcpy(pStr1, cName);
+		strcpy_s(pStr1, 120, cName);
 		if (pItem->m_cItemType == DEF_ITEMTYPE_MATERIAL) 
 			wsprintfA(pStr2, GET_ITEM_NAME1, pItem->m_sItemSpecEffectValue2);//"¼øµµ:%d%% "
 		else wsprintfA(pStr2, GET_ITEM_NAME2, pItem->m_sItemSpecEffectValue2 +100);//"¿Ï¼ºµµ:%d%% "
@@ -34546,7 +33729,7 @@ void CGame::GetItemName(CItem *pItem, char*pStr1, char*pStr2, char*pStr3)
 #else
 		else wsprintfA(G_cTxt, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM1, cName, pItem->m_dwCount);
 #endif
-		strcpy(pStr1, G_cTxt);
+		strcpy_s(pStr1, 120, G_cTxt);
 	}
 		
 	if ((pItem->m_dwAttribute & 0x00F0F000) != 0) {
@@ -34562,22 +33745,22 @@ void CGame::GetItemName(CItem *pItem, char*pStr1, char*pStr2, char*pStr3)
 			
 			ZeroMemory(cTxt, sizeof(cTxt));
 			switch (dwType1) {
-			case 1: strcpy(cTxt, GET_ITEM_NAME3);   break;//"ÇÊ»ìÀÇ "
-			case 2: strcpy(cTxt, GET_ITEM_NAME4);   break;//"Áßµ¶ÀÇ "
-			case 3: strcpy(cTxt, GET_ITEM_NAME5);   break;//"Á¤ÀÇÀÇ "
+			case 1: strcpy_s(cTxt, GET_ITEM_NAME3);   break;//"ÇÊ»ìÀÇ "
+			case 2: strcpy_s(cTxt, GET_ITEM_NAME4);   break;//"Áßµ¶ÀÇ "
+			case 3: strcpy_s(cTxt, GET_ITEM_NAME5);   break;//"Á¤ÀÇÀÇ "
 			case 4: break;
-			case 5: strcpy(cTxt, GET_ITEM_NAME6);   break;//"¹ÎÃ¸ÀÇ "
-			case 6: strcpy(cTxt, GET_ITEM_NAME7);   break;//"°¡º­¿î "
-			case 7: strcpy(cTxt, GET_ITEM_NAME8);   break;//"¿¹¸®ÇÑ "
-			case 8: strcpy(cTxt, GET_ITEM_NAME9);   break;//"°­È­µÈ "
-			case 9: strcpy(cTxt, GET_ITEM_NAME10);  break;//"°í´ë¹®¸íÀÇ "
-			case 10: strcpy(cTxt, GET_ITEM_NAME11); break;//"¸¶¹ý¼º°øÀÇ "
-			case 11: strcpy(cTxt, GET_ITEM_NAME12); break;//"¸¶³ªº¯È¯ÀÇ "
-			case 12: strcpy(cTxt, GET_ITEM_NAME13); break;//"ÇÊ»ìÃæÀüÀÇ "
+			case 5: strcpy_s(cTxt, GET_ITEM_NAME6);   break;//"¹ÎÃ¸ÀÇ "
+			case 6: strcpy_s(cTxt, GET_ITEM_NAME7);   break;//"°¡º­¿î "
+			case 7: strcpy_s(cTxt, GET_ITEM_NAME8);   break;//"¿¹¸®ÇÑ "
+			case 8: strcpy_s(cTxt, GET_ITEM_NAME9);   break;//"°­È­µÈ "
+			case 9: strcpy_s(cTxt, GET_ITEM_NAME10);  break;//"°í´ë¹®¸íÀÇ "
+			case 10: strcpy_s(cTxt, GET_ITEM_NAME11); break;//"¸¶¹ý¼º°øÀÇ "
+			case 11: strcpy_s(cTxt, GET_ITEM_NAME12); break;//"¸¶³ªº¯È¯ÀÇ "
+			case 12: strcpy_s(cTxt, GET_ITEM_NAME13); break;//"ÇÊ»ìÃæÀüÀÇ "
 			}
-			strcat(cTxt, pStr1);
+			strcat_s(cTxt, pStr1);
 			ZeroMemory(pStr1, sizeof(pStr1));
-			strcpy(pStr1, cTxt);
+			strcpy_s(pStr1, 120, cTxt);
 			
 			ZeroMemory(cTxt, sizeof(cTxt));
 			switch (dwType1) {
@@ -34585,16 +33768,16 @@ void CGame::GetItemName(CItem *pItem, char*pStr1, char*pStr2, char*pStr3)
 			case 2: wsprintfA(cTxt, GET_ITEM_NAME15, dwValue1*5); break;//"Áßµ¶ Å¸°ÝÄ¡ +%d "
 			case 3: break;
 			case 4: break;
-			case 5: strcpy(cTxt, GET_ITEM_NAME16); break;//"°ø°Ý¼Óµµ -1 ´ÜÃà "
+			case 5: strcpy_s(cTxt, GET_ITEM_NAME16); break;//"°ø°Ý¼Óµµ -1 ´ÜÃà "
 			case 6: wsprintfA(cTxt, GET_ITEM_NAME17, dwValue1*4); break;//"¹«°Ô %d%% °æ·®È­ "
-			case 7: strcpy(cTxt, GET_ITEM_NAME18); break;//"ÃÖ´ë Å¸°ÝÄ¡ Áõ°¡ "
+			case 7: strcpy_s(cTxt, GET_ITEM_NAME18); break;//"ÃÖ´ë Å¸°ÝÄ¡ Áõ°¡ "
 			case 8: wsprintfA(cTxt, GET_ITEM_NAME19, dwValue1*7); break;//"¼ö¸í %d%% Áõ°¡ "
-			case 9: strcpy(cTxt, GET_ITEM_NAME20); break;//"ÃÖ´ë Å¸°ÝÄ¡ Áõ°¡ "
+			case 9: strcpy_s(cTxt, GET_ITEM_NAME20); break;//"ÃÖ´ë Å¸°ÝÄ¡ Áõ°¡ "
 			case 10: wsprintfA(cTxt, GET_ITEM_NAME21, dwValue1*3); break;//"¸¶¹ý ¼º°ø·ü +%d%% Áõ°¡"
 			case 11: wsprintfA(cTxt, GET_ITEM_NAME22, dwValue1); break; //"ÇÇ°Ý½Ã %d%% ¸¶³ª·Î º¯È¯"
 			case 12: wsprintfA(cTxt, GET_ITEM_NAME23, dwValue1); break; //"ÇÇ°Ý½Ã ÇÊ»ì±â ÃæÀü %d%%"
 			}
-			strcat(pStr2, cTxt);
+			strcat_s(pStr2, 64, cTxt);
 			
 			if (dwType2 != 0) {
 				ZeroMemory(cTxt, sizeof(cTxt));
@@ -34612,7 +33795,7 @@ void CGame::GetItemName(CItem *pItem, char*pStr1, char*pStr2, char*pStr3)
 				case 11: wsprintfA(cTxt, GET_ITEM_NAME34, dwValue2*10); break;//"°æÇèÄ¡ +%d%% "
 				case 12: wsprintfA(cTxt, GET_ITEM_NAME35, dwValue2*10); break;//"Gold +%d%% "
 				}
-				strcpy(pStr3, cTxt);
+				strcpy_s(pStr3, 120, cTxt);
 			}
 		}
 	}
@@ -34627,12 +33810,12 @@ void CGame::GetItemName(CItem *pItem, char*pStr1, char*pStr2, char*pStr3)
 			ZeroMemory(cTxt2, sizeof(cTxt2));
 			wsprintfA(cTxt2, "%s+%d", cTxt, dwValue3);
 			ZeroMemory(pStr1, sizeof(pStr1));
-			strcpy(pStr1, cTxt2);
+			strcpy_s(pStr1, 120, cTxt2);
 		}
 		else {
 			ZeroMemory(cTxt, sizeof(cTxt));
 			wsprintfA(cTxt, "+%d", dwValue3);
-			strcat(pStr1, cTxt);
+			strcat_s(pStr1, 64, cTxt);
 		}
 	}
 }
@@ -34649,14 +33832,14 @@ void CGame::GetItemName(const char* cItemName, DWORD dwAttribute, char*pStr1, ch
 	ZeroMemory(pStr2, sizeof(pStr2));
 	ZeroMemory(pStr3, sizeof(pStr3));
 		
-	strcpy(cName, cItemName);
+	strcpy_s(cName, cItemName);
 	for (i = 0; i < DEF_MAXITEMNAMES; i++)
 	if ((m_pItemNameList[i] != NULL) && (strcmp(m_pItemNameList[i]->m_cOriginName, cItemName) == 0)) {
-		strcpy(cName, m_pItemNameList[i]->m_cName);
+		strcpy_s(cName, m_pItemNameList[i]->m_cName);
 		break;
 	}
 
-	strcpy(pStr1, cName);
+	strcpy_s(pStr1, 120, cName);
 
 	if ((dwAttribute & 0x00F0F000) != 0) {
 		// Èñ±Í ¾ÆÀÌÅÛÀÌ´Ù.
@@ -34671,22 +33854,22 @@ void CGame::GetItemName(const char* cItemName, DWORD dwAttribute, char*pStr1, ch
 			
 			ZeroMemory(cTxt, sizeof(cTxt));
 			switch (dwType1) {
-			case 1: strcpy(cTxt, GET_ITEM_NAME3); break;//"ÇÊ»ìÀÇ "
-			case 2: strcpy(cTxt, GET_ITEM_NAME4); break;//"Áßµ¶ÀÇ "
-			case 3: strcpy(cTxt, GET_ITEM_NAME5); break;//"Á¤ÀÇÀÇ "
+			case 1: strcpy_s(cTxt, GET_ITEM_NAME3); break;//"ÇÊ»ìÀÇ "
+			case 2: strcpy_s(cTxt, GET_ITEM_NAME4); break;//"Áßµ¶ÀÇ "
+			case 3: strcpy_s(cTxt, GET_ITEM_NAME5); break;//"Á¤ÀÇÀÇ "
 			case 4: break;
-			case 5: strcpy(cTxt, GET_ITEM_NAME6); break;//"¹ÎÃ¸ÀÇ "
-			case 6: strcpy(cTxt, GET_ITEM_NAME7); break;//"°¡º­¿î "
-			case 7: strcpy(cTxt, GET_ITEM_NAME8); break;//"¿¹¸®ÇÑ "
-			case 8: strcpy(cTxt, GET_ITEM_NAME9); break;//"°­È­µÈ "
-			case 9: strcpy(cTxt, GET_ITEM_NAME10); break;//"°í´ë¹®¸íÀÇ "
-			case 10: strcpy(cTxt, GET_ITEM_NAME11); break;//"¸¶¹ý¼º°øÀÇ "
-			case 11: strcpy(cTxt, GET_ITEM_NAME12); break;//"¸¶³ªº¯È¯ÀÇ "
-			case 12: strcpy(cTxt, GET_ITEM_NAME13); break;//"ÇÊ»ìÃæÀüÀÇ "
+			case 5: strcpy_s(cTxt, GET_ITEM_NAME6); break;//"¹ÎÃ¸ÀÇ "
+			case 6: strcpy_s(cTxt, GET_ITEM_NAME7); break;//"°¡º­¿î "
+			case 7: strcpy_s(cTxt, GET_ITEM_NAME8); break;//"¿¹¸®ÇÑ "
+			case 8: strcpy_s(cTxt, GET_ITEM_NAME9); break;//"°­È­µÈ "
+			case 9: strcpy_s(cTxt, GET_ITEM_NAME10); break;//"°í´ë¹®¸íÀÇ "
+			case 10: strcpy_s(cTxt, GET_ITEM_NAME11); break;//"¸¶¹ý¼º°øÀÇ "
+			case 11: strcpy_s(cTxt, GET_ITEM_NAME12); break;//"¸¶³ªº¯È¯ÀÇ "
+			case 12: strcpy_s(cTxt, GET_ITEM_NAME13); break;//"ÇÊ»ìÃæÀüÀÇ "
 			}
-			strcat(cTxt, pStr1);
+			strcat_s(cTxt, pStr1);
 			ZeroMemory(pStr1, sizeof(pStr1));
-			strcpy(pStr1, cTxt);
+			strcpy_s(pStr1, 120, cTxt);
 			
 			ZeroMemory(cTxt, sizeof(cTxt));
 			switch (dwType1) {
@@ -34694,16 +33877,16 @@ void CGame::GetItemName(const char* cItemName, DWORD dwAttribute, char*pStr1, ch
 			case 2: wsprintfA(cTxt, GET_ITEM_NAME15, dwValue1*5); break;//"Áßµ¶ Å¸°ÝÄ¡ +%d "
 			case 3: break;
 			case 4: break;
-			case 5: strcpy(cTxt, GET_ITEM_NAME16); break;//"°ø°Ý¼Óµµ -1 ´ÜÃà "
+			case 5: strcpy_s(cTxt, GET_ITEM_NAME16); break;//"°ø°Ý¼Óµµ -1 ´ÜÃà "
 			case 6: wsprintfA(cTxt, GET_ITEM_NAME17, dwValue1*4); break;//"¹«°Ô %d%% °æ·®È­ "
-			case 7: strcpy(cTxt, GET_ITEM_NAME18); break;//"ÃÖ´ë Å¸°ÝÄ¡ Áõ°¡ "
+			case 7: strcpy_s(cTxt, GET_ITEM_NAME18); break;//"ÃÖ´ë Å¸°ÝÄ¡ Áõ°¡ "
 			case 8: wsprintfA(cTxt, GET_ITEM_NAME19, dwValue1*7); break;//"¼ö¸í %d%% Áõ°¡ "
-			case 9: strcpy(cTxt, GET_ITEM_NAME20); break;//"ÃÖ´ë Å¸°ÝÄ¡ Áõ°¡ "
+			case 9: strcpy_s(cTxt, GET_ITEM_NAME20); break;//"ÃÖ´ë Å¸°ÝÄ¡ Áõ°¡ "
 			case 10: wsprintfA(cTxt, GET_ITEM_NAME21, dwValue1*3); break;//"¸¶¹ý ¼º°ø·ü +%d%% Áõ°¡"
 			case 11: wsprintfA(cTxt, GET_ITEM_NAME22, dwValue1); break;//"ÇÇ°Ý½Ã %d%% ¸¶³ª·Î º¯È¯"
 			case 12: wsprintfA(cTxt, GET_ITEM_NAME23, dwValue1); break;//"ÇÇ°Ý½Ã ÇÊ»ì±â ÃæÀü %d%%"
 			}
-			strcat(pStr2, cTxt);
+			strcat_s(pStr2, 64, cTxt);
 			
 			if (dwType2 != 0) {
 				ZeroMemory(cTxt, sizeof(cTxt));
@@ -34721,7 +33904,7 @@ void CGame::GetItemName(const char* cItemName, DWORD dwAttribute, char*pStr1, ch
 				case 11: wsprintfA(cTxt, GET_ITEM_NAME34, dwValue2*10); break;//"°æÇèÄ¡ +%d%% "
 				case 12: wsprintfA(cTxt, GET_ITEM_NAME35, dwValue2*10); break;//"Gold +%d%% "
 				}
-				strcpy(pStr3, cTxt);
+				strcpy_s(pStr3, 120, cTxt);
 			}
 		}
 	}
@@ -34736,12 +33919,12 @@ void CGame::GetItemName(const char* cItemName, DWORD dwAttribute, char*pStr1, ch
 			ZeroMemory(cTxt2, sizeof(cTxt2));
 			wsprintfA(cTxt2, "%s+%d", cTxt, dwValue3);
 			ZeroMemory(pStr1, sizeof(pStr1));
-			strcpy(pStr1, cTxt2);
+			strcpy_s(pStr1, 120, cTxt2);
 		}
 		else {
 			ZeroMemory(cTxt, sizeof(cTxt));
 			wsprintfA(cTxt, "+%d", dwValue3);
-			strcat(pStr1, cTxt);
+			strcat_s(pStr1, 64, cTxt);
 		}
 	}
 }
@@ -34792,7 +33975,7 @@ void CGame::PointCommandHandler(int indexX, int indexY, char cItemID)
 			m_stDialogBoxInfo[32].cMode = 3;
 			PlaySound('E', 14, 5);
 			ZeroMemory(m_stDialogBoxInfo[32].cStr, sizeof(m_stDialogBoxInfo[32].cStr));
-			strcpy(m_stDialogBoxInfo[32].cStr, m_cMCName);
+			strcpy_s(m_stDialogBoxInfo[32].cStr, m_cMCName);
 			bSendCommand(MSGID_COMMAND_COMMON, DEF_COMMONTYPE_REQUEST_JOINPARTY, NULL, 1, NULL, NULL, m_cMCName);
 			return;
 		}
@@ -34921,7 +34104,7 @@ void CGame::UpdateScreen_OnGame()
 								m_stDialogBoxInfo[20].sY  = tY;
 
 								ZeroMemory(m_stDialogBoxInfo[20].cStr, sizeof(m_stDialogBoxInfo[20].cStr));
-								strcpy(m_stDialogBoxInfo[20].cStr, m_stDialogBoxInfo[17].cStr);
+								strcpy_s(m_stDialogBoxInfo[20].cStr, m_stDialogBoxInfo[17].cStr);
 								break;
 
 							case 20:
@@ -35055,7 +34238,7 @@ void CGame::UpdateScreen_OnGame()
 				ZeroMemory(G_cTxt, sizeof(G_cTxt));
 				ReceiveString((char*)G_cTxt);
 				ZeroMemory(m_cBackupChatMsg, sizeof(m_cBackupChatMsg));
-				strcpy(m_cBackupChatMsg, G_cTxt);
+				strcpy_s(m_cBackupChatMsg, G_cTxt);
 				if ((m_dwCurTime - dwPrevChatTime) < 700) {
 				}
 				else {
@@ -35470,16 +34653,16 @@ void CGame::StartBGM()
 	ZeroMemory( cWavFileName, sizeof(cWavFileName) );
 
 #ifdef DEF_XMAS	//	Å©¸®½º¸¶½º Ä³·Ñ ºÎºÐ^^;
-	if( m_cWhetherEffectType >= 4 && m_cWhetherEffectType <= 6 ) strcpy( cWavFileName, "music\\Carol.wav" );
+	if( m_cWhetherEffectType >= 4 && m_cWhetherEffectType <= 6 ) strcpy_s( cWavFileName, "music\\Carol.wav" );
 	else
 #endif
 	{
-		if (memcmp(m_cCurLocation, "aresden", 7) == 0) strcpy( cWavFileName, "music\\aresden.wav" );
-		else if (memcmp(m_cCurLocation, "elvine", 6) == 0) strcpy( cWavFileName, "music\\elvine.wav" );
-		else if (memcmp(m_cCurLocation, "dglv", 4) == 0) strcpy( cWavFileName, "music\\dungeon.wav" );
-		else if (memcmp(m_cCurLocation, "middled1", 8) == 0) strcpy( cWavFileName, "music\\dungeon.wav" );
-		else if (memcmp(m_cCurLocation, "middleland", 10) == 0) strcpy( cWavFileName, "music\\middleland.wav" );
-		else strcpy( cWavFileName, "music\\MainTm.wav" );
+		if (memcmp(m_cCurLocation, "aresden", 7) == 0) strcpy_s( cWavFileName, "music\\aresden.wav" );
+		else if (memcmp(m_cCurLocation, "elvine", 6) == 0) strcpy_s( cWavFileName, "music\\elvine.wav" );
+		else if (memcmp(m_cCurLocation, "dglv", 4) == 0) strcpy_s( cWavFileName, "music\\dungeon.wav" );
+		else if (memcmp(m_cCurLocation, "middled1", 8) == 0) strcpy_s( cWavFileName, "music\\dungeon.wav" );
+		else if (memcmp(m_cCurLocation, "middleland", 10) == 0) strcpy_s( cWavFileName, "music\\middleland.wav" );
+		else strcpy_s( cWavFileName, "music\\MainTm.wav" );
 	}
 	if (m_pBGM != NULL) {
 		if( strcmp( m_pBGM->m_cWavFileName, cWavFileName ) == 0 ) return;
@@ -36889,7 +36072,7 @@ MOTION_COMMAND_PROCESS:;
 				ZeroMemory(cTxt, sizeof(cTxt));
 				if (m_sDamageMoveAmount > 0)
 					wsprintfA(cTxt, "-%dPts", m_sDamageMoveAmount); //pts
-				else strcpy(cTxt, "Critical!");
+				else strcpy_s(cTxt, "Critical!");
 				
 				int iFontType;
 				if ((m_sDamageMoveAmount >= 0) && (m_sDamageMoveAmount < 12))		iFontType = 21;
@@ -37400,24 +36583,24 @@ void CGame::DrawDialogBox_Character(short msX, short msY)
 	DrawNewDialogBox(DEF_SPRID_INTERFACE_ND_TEXT, sX, sY, 0, FALSE, m_bDialogTrans);
 		
 	ZeroMemory(G_cTxt, sizeof(G_cTxt));
-	strcpy(G_cTxt, m_cPlayerName);
-	strcat(G_cTxt, " : ");
+	strcpy_s(G_cTxt, m_cPlayerName);
+	strcat_s(G_cTxt, " : ");
 		
 	if (m_iPKCount > 0) {
 		ZeroMemory(cTxt2, sizeof(cTxt2));
 		wsprintfA(cTxt2, DRAW_DIALOGBOX_CHARACTER1, m_iPKCount);//"¹üÁËÀÚ(%d) "
-		strcat(G_cTxt, cTxt2);
+		strcat_s(G_cTxt, cTxt2);
 	}
 
 	ZeroMemory(cTxt2, sizeof(cTxt2));
 	wsprintfA(cTxt2, DRAW_DIALOGBOX_CHARACTER2, m_iContribution);//"°øÇåµµ(%d) "
-	strcat(G_cTxt, cTxt2);
+	strcat_s(G_cTxt, cTxt2);
 
 	PutAlignedString(sX +24, sX +252, sY+52, G_cTxt, 45,20,20);
 	
 	ZeroMemory(G_cTxt, sizeof(G_cTxt));
 
-	if( m_bCitizen == FALSE ) strcpy( G_cTxt, DRAW_DIALOGBOX_CHARACTER7);//"¿©ÇàÀÚ"
+	if( m_bCitizen == FALSE ) strcpy_s( G_cTxt, DRAW_DIALOGBOX_CHARACTER7);//"¿©ÇàÀÚ"
 	else
 	{
 
@@ -37425,27 +36608,27 @@ void CGame::DrawDialogBox_Character(short msX, short msY)
 		if(m_bHunter)
 		{
 			if (m_bAresden)
-				 strcat(G_cTxt, DEF_MSG_ARECIVIL);//"¾Æ·¹½ºµ§ ¹Î°£ÀÎ"
-			else strcat(G_cTxt, DEF_MSG_ELVCIVIL);//"¿¤¹ÙÀÎ ¹Î°£ÀÎ"
+				 strcat_s(G_cTxt, DEF_MSG_ARECIVIL);//"¾Æ·¹½ºµ§ ¹Î°£ÀÎ"
+			else strcat_s(G_cTxt, DEF_MSG_ELVCIVIL);//"¿¤¹ÙÀÎ ¹Î°£ÀÎ"
 		}
 		else
 		{
 			if (m_bAresden)
-				 strcat(G_cTxt, DEF_MSG_ARESOLDIER);//"¾Æ·¹½ºµ§ º´»ç"
-			else strcat(G_cTxt, DEF_MSG_ELVSOLDIER);//"¿¤¹ÙÀÎ º´»ç"
+				 strcat_s(G_cTxt, DEF_MSG_ARESOLDIER);//"¾Æ·¹½ºµ§ º´»ç"
+			else strcat_s(G_cTxt, DEF_MSG_ELVSOLDIER);//"¿¤¹ÙÀÎ º´»ç"
 		}
 //#else
 //		if (m_bAresden)
-//			 strcat(G_cTxt, DRAW_OBJECT_NAME62);//"¾Æ·¹½ºµ§ ¼Ò¼Ó"
-//		else strcat(G_cTxt, DRAW_OBJECT_NAME74);//"¿¤¹ÙÀÎ ¼Ò¼Ó"
+//			 strcat_s(G_cTxt, DRAW_OBJECT_NAME62);//"¾Æ·¹½ºµ§ ¼Ò¼Ó"
+//		else strcat_s(G_cTxt, DRAW_OBJECT_NAME74);//"¿¤¹ÙÀÎ ¼Ò¼Ó"
 //#endif
 
 		if( m_iGuildRank >= 0 )
 		{
-			strcat( G_cTxt, "(" );
-			strcat( G_cTxt, m_cGuildName );
-			if( m_iGuildRank == 0 ) strcat( G_cTxt, DEF_MSG_GUILDMASTER1 );//" ±æµå¸¶½ºÅÍ)"
-			else strcat( G_cTxt, DEF_MSG_GUILDSMAN1 );//" ±æµå¿ø)"
+			strcat_s( G_cTxt, "(" );
+			strcat_s( G_cTxt, m_cGuildName );
+			if( m_iGuildRank == 0 ) strcat_s( G_cTxt, DEF_MSG_GUILDMASTER1 );//" ±æµå¸¶½ºÅÍ)"
+			else strcat_s( G_cTxt, DEF_MSG_GUILDSMAN1 );//" ±æµå¿ø)"
 		}
 	}
 
@@ -38569,7 +37752,7 @@ void CGame::DrawDialogBox_Exchange(short msX, short msY)
 				if(m_stDialogBoxInfo[27].sV3 > 1)
 				{
 					DisplayGold(m_stDialogBoxInfo[27].sV3);
-					strcpy(cTxt2, G_cTxt);
+					strcpy_s(cTxt2, G_cTxt);
 				}
 				else
 					wsprintfA(cTxt2, DRAW_DIALOGBOX_EXCHANGE2, m_stDialogBoxInfo[27].sV3);
@@ -38645,7 +37828,7 @@ void CGame::DrawDialogBox_Exchange(short msX, short msY)
 				if(m_stDialogBoxInfo[27].sV7 > 1)
 				{
 					DisplayGold(m_stDialogBoxInfo[27].sV7);
-					strcpy(cTxt2, G_cTxt);
+					strcpy_s(cTxt2, G_cTxt);
 				}
 				else
 				wsprintfA(cTxt2, DRAW_DIALOGBOX_EXCHANGE2, m_stDialogBoxInfo[27].sV7);
@@ -39392,16 +38575,16 @@ void CGame::DrawDialogBox_Magic(short msX, short msY, short msZ)
 	//Circle
 	ZeroMemory(cTxt, sizeof(cTxt));
 	switch (m_stDialogBoxInfo[3].sView) {
-	case 0: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC1);  break;//"Circle One"
-	case 1: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC2);  break;//"Circle Two"
-	case 2: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC3);  break;//"Circle Three"
-	case 3: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC4);  break;//"Circle Four"
-	case 4: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC5);  break;//"Circle Five"
-	case 5: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC6);  break;//"Circle Six"
-	case 6: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC7);  break;//"Circle Seven"
-	case 7: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC8);  break;//"Circle Eight"
-	case 8: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC9);  break;//"Circle Nine"   
-	case 9: strcpy(cTxt, DRAW_DIALOGBOX_MAGIC10); break;//"Circle Ten"
+	case 0: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC1);  break;//"Circle One"
+	case 1: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC2);  break;//"Circle Two"
+	case 2: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC3);  break;//"Circle Three"
+	case 3: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC4);  break;//"Circle Four"
+	case 4: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC5);  break;//"Circle Five"
+	case 5: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC6);  break;//"Circle Six"
+	case 6: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC7);  break;//"Circle Seven"
+	case 7: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC8);  break;//"Circle Eight"
+	case 8: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC9);  break;//"Circle Nine"   
+	case 9: strcpy_s(cTxt, DRAW_DIALOGBOX_MAGIC10); break;//"Circle Ten"
 	}
 	PutAlignedString(sX + 3, sX + 256, sY + 50, cTxt);
 	PutAlignedString(sX + 4, sX + 257, sY + 50, cTxt);
@@ -39666,7 +38849,7 @@ void CGame::DrawDialogBox_ShutDownMsg(short msX, short msY)
 	case 1:
 		ZeroMemory(G_cTxt, sizeof(G_cTxt));
 		if (m_stDialogBoxInfo[25].sV1 != 0) wsprintfA(G_cTxt, DRAW_DIALOGBOX_NOTICEMSG1, m_stDialogBoxInfo[25].sV1);//" °ÔÀÓ¼­¹ö°¡ %dºÐ ÈÄ ¼Ë´Ù¿îµË´Ï´Ù."
-		else strcpy(G_cTxt, DRAW_DIALOGBOX_NOTICEMSG2);//" °ÔÀÓ¼­¹ö°¡ °ð ¼Ë´Ù¿îµË´Ï´Ù!"
+		else strcpy_s(G_cTxt, DRAW_DIALOGBOX_NOTICEMSG2);//" °ÔÀÓ¼­¹ö°¡ °ð ¼Ë´Ù¿îµË´Ï´Ù!"
 		PutAlignedString(sX, sX + szX, sY + 31, G_cTxt, 100,10,10);
 		PutAlignedString(sX, sX + szX, sY + 48, DRAW_DIALOGBOX_NOTICEMSG3);//"Áö±Ý Á¢¼ÓÀ» ²÷À¸¼Å¾ß µ¥ÀÌÅÍ°¡ ¾ÈÀüÇÏ°Ô ÀúÀå"
 		PutAlignedString(sX, sX + szX, sY + 65, DRAW_DIALOGBOX_NOTICEMSG4);//"µË´Ï´Ù. Àá½Ã ÈÄ ¼­¹ö ¼Ë´Ù¿î ½ÃÀÛ ¸Þ½ÃÁö ÀÌÈÄ"
@@ -40284,7 +39467,7 @@ void CGame::DrawDialogBox_Quest(int msX, int msY)
 			case 1:
 			case 2:
 			case 3: break;
-			case 4: strcpy(cTemp, NPC_NAME_CITYHALL_OFFICER); break;
+			case 4: strcpy_s(cTemp, NPC_NAME_CITYHALL_OFFICER); break;
 				                  //"½ÃÃ» ÇàÁ¤°ü"
 			case 5:
 			case 6:
@@ -40307,7 +39490,7 @@ void CGame::DrawDialogBox_Quest(int msX, int msY)
 
 			ZeroMemory(cTxt, sizeof(cTxt));
 			if (memcmp(m_stQuest.cTargetName, "NONE", 4) == 0) {
-				strcpy(cTxt, DRAW_DIALOGBOX_QUEST31);//"À§  Ä¡: »ó°ü¾øÀ½"
+				strcpy_s(cTxt, DRAW_DIALOGBOX_QUEST31);//"À§  Ä¡: »ó°ü¾øÀ½"
 				PutAlignedString(sX, sX + szX, sY + 50 +75, cTxt, 55,25,25);
 			}
 			else {
@@ -40338,7 +39521,7 @@ void CGame::DrawDialogBox_Quest(int msX, int msY)
 			case 1:
 			case 2:
 			case 3: break;
-			case 4: strcpy(cTemp, NPC_NAME_CITYHALL_OFFICER); break;//"½ÃÃ» ÇàÁ¤°ü"  
+			case 4: strcpy_s(cTemp, NPC_NAME_CITYHALL_OFFICER); break;//"½ÃÃ» ÇàÁ¤°ü"  
 			case 5:
 			case 6:
 			case 7: break;
@@ -40351,7 +39534,7 @@ void CGame::DrawDialogBox_Quest(int msX, int msY)
 
 			ZeroMemory(cTxt, sizeof(cTxt));
 			if (memcmp(m_stQuest.cTargetName, "NONE", 4) == 0) {
-				strcpy(cTxt, DRAW_DIALOGBOX_QUEST31);//"À§  Ä¡: »ó°ü¾øÀ½"
+				strcpy_s(cTxt, DRAW_DIALOGBOX_QUEST31);//"À§  Ä¡: »ó°ü¾øÀ½"
 				PutAlignedString(sX, sX + szX, sY + 50 +75, cTxt, 55,25,25);
 			}
 			else {
@@ -40551,7 +39734,7 @@ void CGame::DrawDialogBox_SellorRepairItem(short msX, short msY)
 		ZeroMemory(cStr3, sizeof(cStr3));
 
 		GetItemName(m_pItemList[cItemID]->m_cName, m_pItemList[cItemID]->m_dwAttribute, cTemp, cStr2, cStr3);
-		if( m_stDialogBoxInfo[23].sV4 == 1 ) strcpy( cTxt, cTemp );
+		if( m_stDialogBoxInfo[23].sV4 == 1 ) strcpy_s( cTxt, cTemp );
 #if DEF_LANGUAGE == 4	//¾ð¾î:English
 		else wsprintfA(cTxt, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM1, m_stDialogBoxInfo[23].sV4, cTemp);
 #else
@@ -40785,10 +39968,10 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 		PutAlignedString(sX +25, sX+240, sY+50, cTemp, 255,255,255);
 		PutAlignedString(sX +26, sX+241, sY+50, cTemp, 255,255,255);
 		
-		strcpy(cTemp, DRAW_DIALOGBOX_SHOP3);//"°¡  °Ý"
+		strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP3);//"°¡  °Ý"
 		PutString(sX + 95 + 30 -35, sY + 78 + 30 -10, cTemp, RGB(40,10,10));
 		PutString(sX + 96 + 30 -35, sY + 78 + 30 -10, cTemp, RGB(40,10,10));
-		strcpy(cTemp, DRAW_DIALOGBOX_SHOP6);
+		strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP6);
 		             //"¹«  °Ô"
 		PutString(sX + 95 + 30 -35, sY + 93 + 30 -10, cTemp, RGB(40,10,10));
 		PutString(sX + 96 + 30 -35, sY + 93 + 30 -10, cTemp, RGB(40,10,10));
@@ -40849,11 +40032,11 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 		case DEF_EQUIPPOS_RHAND:
 		case DEF_EQUIPPOS_TWOHAND:
 			// ¹«±â·ùÀÌ´Ù.
-			strcpy(cTemp, DRAW_DIALOGBOX_SHOP9);
+			strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP9);
 			              //"°ø°Ý·Â"
 			PutString(sX + 40, sY + 145, cTemp, RGB(45,25,25));
 			PutString(sX + 41, sY + 145, cTemp, RGB(45,25,25));
-			strcpy(cTemp, DRAW_DIALOGBOX_SHOP10);
+			strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP10);
 			             //"¼Óµµ(ÃÖ¼Ò~ÃÖ´ëÈû)"
 			PutString(sX + 30, sY + 175, cTemp, RGB(45,25,25));
 			PutString(sX + 31, sY + 175, cTemp, RGB(45,25,25));
@@ -40903,7 +40086,7 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 
 		case DEF_EQUIPPOS_LHAND:
 			// ¹æÆÐ·ùÀÌ´Ù.
-			strcpy(cTemp, DRAW_DIALOGBOX_SHOP12);//"¹æ¾î°ª"
+			strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP12);//"¹æ¾î°ª"
 			PutString(sX + 90, sY + 145, cTemp, RGB(45,25,25));
 			PutString(sX + 91, sY + 145, cTemp, RGB(45,25,25));
 
@@ -40924,7 +40107,7 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 		case DEF_EQUIPPOS_BOOTS:
 		case DEF_EQUIPPOS_ARMS:
 		case DEF_EQUIPPOS_PANTS:
-			strcpy(cTemp, DRAW_DIALOGBOX_SHOP12);//"¹æ¾î°ª"
+			strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP12);//"¹æ¾î°ª"
 			PutString(sX + 90, sY + 145, cTemp, RGB(45,25,25));
 			PutString(sX + 91, sY + 145, cTemp, RGB(45,25,25));
 
@@ -41026,7 +40209,7 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 				bFlag = FALSE;
 			}
 			else if (bFlag == FALSE) {
-				strcpy(cTemp, DRAW_DIALOGBOX_SHOP21);//"* Æ¯¼ºÄ¡°¡ ³·¾Æ »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù."
+				strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP21);//"* Æ¯¼ºÄ¡°¡ ³·¾Æ »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù."
 				PutAlignedString(sX +25, sX+240, sY + 254 -10 +14 +iMsgLoc*15, cTemp, 195,25,25);
 				PutAlignedString(sX +25 +1, sX+240 +1, sY + 254 -10 +14 +iMsgLoc*15, cTemp, 195,25,25);
 				iMsgLoc++;
@@ -41035,7 +40218,7 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 			if (strstr(m_pItemForSaleList[m_stDialogBoxInfo[11].cMode - 1]->m_cName, "(M)") != NULL) {
 				// ³²ÀÚ¿ë ¾ÆÀÌÅÛ
 				if (m_sPlayerType > 3) {	
-					strcpy(cTemp, DRAW_DIALOGBOX_SHOP22);//"* ³²¼º¿ëÀÌ¶ó »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù."
+					strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP22);//"* ³²¼º¿ëÀÌ¶ó »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù."
 					PutAlignedString(sX +25, sX+240, sY + 254 -10 +14 +iMsgLoc*15, cTemp, 195,25,25);
 					PutAlignedString(sX +25 +1, sX+240 +1, sY + 254 -10 +14 +iMsgLoc*15, cTemp, 195,25,25);
 					iMsgLoc++;
@@ -41045,7 +40228,7 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 			else if (strstr(m_pItemForSaleList[m_stDialogBoxInfo[11].cMode - 1]->m_cName, "(W)") != NULL) {
 				// ¿©ÀÚ¿ë ¾ÆÀÌÅÛ
 				if (m_sPlayerType <= 3) {	
-					strcpy(cTemp, DRAW_DIALOGBOX_SHOP23);
+					strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP23);
 					              //"* ¿©¼º¿ëÀÌ¶ó »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù."
 					PutAlignedString(sX +25, sX+240, sY + 254 -10 +14 +iMsgLoc*15, cTemp, 195,25,25);
 					PutAlignedString(sX +25 +1, sX+240 +1, sY + 254 -10 +14 +iMsgLoc*15, cTemp, 195,25,25);
@@ -41061,7 +40244,7 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 
 		// ·¹º§ Á¦ÇÑ
 		if (m_pItemForSaleList[m_stDialogBoxInfo[11].cMode - 1]->m_sLevelLimit != 0) {
-			strcpy(cTemp, DRAW_DIALOGBOX_SHOP24);
+			strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP24);
 			             //"·¹º§ Á¦ÇÑ"
 			PutString(sX + 75 -35, sY + 170 + 30 -10, cTemp, RGB(45,25,25));
 			PutString(sX + 76 -35, sY + 170 + 30 -10, cTemp, RGB(45,25,25));
@@ -41071,7 +40254,7 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 			PutString(sX + 145 + 30 -35, sY + 170 + 30 -10, cTemp, RGB(45,25,25));
 
 			if ((bFlag == TRUE) && (m_iLevel < m_pItemForSaleList[m_stDialogBoxInfo[11].cMode - 1]->m_sLevelLimit)) {
-				strcpy(cTemp, DRAW_DIALOGBOX_SHOP26);
+				strcpy_s(cTemp, DRAW_DIALOGBOX_SHOP26);
 				             //"* ·¹º§ÀÌ ³·¾Æ »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù."
 				PutAlignedString(sX +25, sX+240, sY + 254 -10 +14 +iMsgLoc*15, cTemp, 195,25,25);
 				PutAlignedString(sX +25 +1, sX+240 +1, sY + 254 -10 +14 +iMsgLoc*15, cTemp, 195,25,25);
@@ -41096,14 +40279,14 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 		if (m_stDialogBoxInfo[11].sV3 >= 10) {
 			// ½Ê ÀÚ¸® Ãâ·Â 
 			ZeroMemory(cTemp, sizeof(cTemp));
-			_itoa(m_stDialogBoxInfo[11].sV3, cTemp, 10);
+			snprintf(cTemp, sizeof(cTemp), "%d", m_stDialogBoxInfo[11].sV3);
 			cTemp[1] = NULL;
 			PutString(sX -35 + 186, sY -10 + 237, cTemp, RGB(40,10,10));
 			PutString(sX -35 + 187, sY -10 + 237, cTemp, RGB(40,10,10));
 
 			// ´ÜÀÚ¸® Ãâ·Â 
 			ZeroMemory(cTemp, sizeof(cTemp));
-			_itoa(m_stDialogBoxInfo[11].sV3, cTemp, 10);
+			snprintf(cTemp, sizeof(cTemp), "%d", m_stDialogBoxInfo[11].sV3);
 			PutString(sX -35 + 200, sY -10 + 237, (cTemp+1), RGB(40,10,10));
 			PutString(sX -35 + 201, sY -10 + 237, (cTemp+1), RGB(40,10,10));
 		}
@@ -41112,7 +40295,7 @@ void CGame::DrawDialogBox_Shop(short msX, short msY, short msZ, char cLB)
 			PutString(sX -35 + 187, sY -10 + 237, "0", RGB(40,10,10));
 
 			ZeroMemory(cTemp, sizeof(cTemp));
-			_itoa(m_stDialogBoxInfo[11].sV3, cTemp, 10);
+			snprintf(cTemp, sizeof(cTemp), "%d", m_stDialogBoxInfo[11].sV3);
 			PutString(sX -35 + 200, sY -10 + 237, (cTemp), RGB(40,10,10));
 			PutString(sX -35 + 201, sY -10 + 237, (cTemp), RGB(40,10,10));
 		}
@@ -42822,7 +42005,7 @@ void CGame::DlgBoxClick_Shop(short msX, short msY)
 			}
 			else {
 				ZeroMemory(cTemp, sizeof(cTemp));
-				strcpy(cTemp, m_pItemForSaleList[m_stDialogBoxInfo[11].cMode - 1]->m_cName);
+				strcpy_s(cTemp, m_pItemForSaleList[m_stDialogBoxInfo[11].cMode - 1]->m_cName);
 				bSendCommand(MSGID_COMMAND_COMMON, DEF_COMMONTYPE_REQ_PURCHASEITEM, NULL, m_stDialogBoxInfo[11].sV3, NULL, NULL, cTemp); 
 			}
 			m_stDialogBoxInfo[11].cMode = 0;
@@ -44426,7 +43609,7 @@ void CGame::NotifyMsg_LevelUp(const char* pData)
 	for (i = 1; i < DEF_MAXCHATMSGS; i++) 
 	if (m_pChatMsgList[i] == NULL) {
 		ZeroMemory(cTxt, sizeof(cTxt));
-		strcpy(cTxt, "Level up!");
+		strcpy_s(cTxt, "Level up!");
 		m_pChatMsgList[i] = new class CMsg(23, cTxt, m_dwCurTime);
 		m_pChatMsgList[i]->m_iObjectID = m_sPlayerObjectID;
 				
@@ -45023,7 +44206,7 @@ void CGame::NotifyMsg_RatingPlayer(const char* pData)
 	ZeroMemory(G_cTxt, sizeof(G_cTxt));
 	if (memcmp(m_cPlayerName, cName, 10) == 0) {
 		if (cValue == 1) {
-			 strcpy(G_cTxt, NOTIFYMSG_RATING_PLAYER1);//"´Ù¸¥ ÇÃ·¹ÀÌ¾î·ÎºÎÅÍ ÁÁÀº Æò°¡¸¦ ¹Þ¾Ò½À´Ï´Ù."
+			 strcpy_s(G_cTxt, NOTIFYMSG_RATING_PLAYER1);//"´Ù¸¥ ÇÃ·¹ÀÌ¾î·ÎºÎÅÍ ÁÁÀº Æò°¡¸¦ ¹Þ¾Ò½À´Ï´Ù."
 			 PlaySound('E', 23, 0);
  		}
 	}
@@ -45086,7 +44269,7 @@ void CGame::NotifyMsg_ServerChange(const char* pData)
 	//m_wEnterGameType = DEF_ENTERGAMEMSGTYPE_NEW; //Gateway
 	m_wEnterGameType = DEF_ENTERGAMEMSGTYPE_NEW_TOWLSBUTMLS;
 	ZeroMemory(m_cMsg, sizeof(m_cMsg));
-	strcpy(m_cMsg,"55");
+	strcpy_s(m_cMsg,"55");
 }
 
 void CGame::NotifyMsg_SetItemCount(const char* pData)
@@ -45935,7 +45118,7 @@ void CGame::InitDataResponseHandler(const char* pData)
 	}
 	cp += 10;
 
-	strcpy( cPreCurLocation, m_cCurLocation );
+	strcpy_s( cPreCurLocation, m_cCurLocation );
 	ZeroMemory(m_cCurLocation, sizeof(m_cCurLocation));
 	memcpy(m_cCurLocation, cp, 10);
 	cp += 10;
@@ -45975,9 +45158,9 @@ void CGame::InitDataResponseHandler(const char* pData)
 	else SetWhetherStatus(FALSE, m_cWhetherStatus);
 
 	ZeroMemory(cMapFileName, sizeof(cMapFileName));
-	strcat(cMapFileName, "mapdata\\");
-	strcat(cMapFileName, m_cMapName);
-	strcat(cMapFileName, ".amd");
+	strcat_s(cMapFileName, "mapdata\\");
+	strcat_s(cMapFileName, m_cMapName);
+	strcat_s(cMapFileName, ".amd");
 	m_pMapData->OpenMapDataFile(cMapFileName);
 
 	m_pMapData->m_sPivotX = sX;
@@ -46293,7 +45476,7 @@ void CGame::MotionEventHandler(const char* pData)
 			ZeroMemory(cTxt, sizeof(cTxt));
 			if (sV1 > 0)
 				wsprintfA(cTxt, "-%dPts!", sV1); //pts
-			else strcpy(cTxt, "Critical!");
+			else strcpy_s(cTxt, "Critical!");
 			
 			int iFontType;
 			if ((sV1 >= 0) && (sV1 < 12))		iFontType = 21;
@@ -46334,7 +45517,7 @@ void CGame::MotionEventHandler(const char* pData)
 			if (sV1 != 0) {
 				if (sV1 > 0)
 					wsprintfA(cTxt, "-%dPts", sV1); //pts
-				else strcpy(cTxt, "Critical!");
+				else strcpy_s(cTxt, "Critical!");
 				
 				int iFontType;
 				if ((sV1 >= 0) && (sV1 < 12))		iFontType = 21;
@@ -46344,7 +45527,7 @@ void CGame::MotionEventHandler(const char* pData)
 				m_pChatMsgList[i] = new class CMsg(iFontType, cTxt, m_dwCurTime);
 			}
 			else {
-				strcpy(cTxt, " * Failed! *");
+				strcpy_s(cTxt, " * Failed! *");
 				m_pChatMsgList[i] = new class CMsg(22, cTxt, m_dwCurTime);
 				PlaySound('C', 17, 0);
 			}
@@ -48129,9 +47312,9 @@ void CGame::UpdateScreen_OnInputKeyCode()
 			ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
 			ZeroMemory(m_cKeyCode, sizeof(m_cKeyCode));
 			
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
-			strcpy(m_cKeyCode, cKeyCode);
+			strcpy_s(m_cAccountName, cName);
+			strcpy_s(m_cAccountPassword, cPassword);
+			strcpy_s(m_cKeyCode, cKeyCode);
 
 			// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 			m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
@@ -48141,7 +47324,7 @@ void CGame::UpdateScreen_OnInputKeyCode()
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_INPUTKEYCODE;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "61");
+			strcpy_s(m_cMsg, "61");
 			delete pMI;
 			return;
 		
@@ -48295,9 +47478,9 @@ void CGame::UpdateScreen_OnInputKeyCode()
 			ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
 			ZeroMemory(m_cKeyCode, sizeof(m_cKeyCode));
 			
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
-			strcpy(m_cKeyCode, cKeyCode);
+			strcpy_s(m_cAccountName, cName);
+			strcpy_s(m_cAccountPassword, cPassword);
+			strcpy_s(m_cKeyCode, cKeyCode);
 			
 			// Á¢¼ÓÀ» ½Ãµµ¿ä±¸°¡ ÀÖÀ¸¸é ·Î±×¼­¹ö·Î ¼ÒÄÏÀ» »ý¼ºÇÏ°í ¿¬°áÀ» ±â´Ù¸°´Ù. 
 			m_pLSock = new class XSocket(m_hWnd, DEF_SOCKETBLOCKLIMIT);
@@ -48307,7 +47490,7 @@ void CGame::UpdateScreen_OnInputKeyCode()
 			ChangeGameMode(DEF_GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_INPUTKEYCODE;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "61");
+			strcpy_s(m_cMsg, "61");
 			delete pMI;
 			return;
 

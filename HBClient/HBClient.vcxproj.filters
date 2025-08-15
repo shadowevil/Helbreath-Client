@@ -4,11 +4,7 @@
     <ClInclude Include="ActionID.h" />
     <ClInclude Include="BuildItem.h" />
     <ClInclude Include="CharInfo.h" />
-    <ClInclude Include="CNTREVNT.H" />
     <ClInclude Include="Curse.h" />
-    <ClInclude Include="DDRAW.H" />
-    <ClInclude Include="DINPUT.H" />
-    <ClInclude Include="DSOUND.H" />
     <ClInclude Include="DXC_ddraw.h" />
     <ClInclude Include="DXC_dinput.h" />
     <ClInclude Include="DXC_dsound.h" />
@@ -34,7 +30,6 @@
     <ClInclude Include="SoundID.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteID.h" />
-    <ClInclude Include="StdAfx.h" />
     <ClInclude Include="StrTok.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileSpr.h" />
@@ -63,7 +58,6 @@
     <ClCompile Include="Skill.cpp" />
     <ClCompile Include="SoundBuffer.cpp" />
     <ClCompile Include="Sprite.cpp" />
-    <ClCompile Include="StdAfx.cpp" />
     <ClCompile Include="StrTok.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileSpr.cpp" />

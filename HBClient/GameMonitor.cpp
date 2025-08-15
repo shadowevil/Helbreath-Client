@@ -39,8 +39,9 @@ int CGameMonitor::iReadBadWordFileList(const char*pFn)
 	dwFileSize = GetFileSize(hFile, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-	pFile = fopen(pFn, "rt");
-	if (pFile == NULL) return 0;
+	if(fopen_s(&pFile, pFn, "rt") != 0 && !pFile) {
+		return 0; // File not found or error opening file
+	}
 	else {
 		pContents = new char[dwFileSize+1];
 		ZeroMemory(pContents, dwFileSize+1);
@@ -70,7 +71,7 @@ BOOL CGameMonitor::bCheckBadWord(const char*pWord)
 
 
 	ZeroMemory(cBuffer, sizeof(cBuffer));
-	strcpy(cBuffer, pWord);
+	strcpy_s(cBuffer, pWord);
 	i = 0;
 	while ((m_pWordList[i] != NULL) && (strlen(m_pWordList[i]->m_pMsg) != 0)) {
 		if (memcmp(cBuffer, m_pWordList[i]->m_pMsg, strlen(m_pWordList[i]->m_pMsg)) == 0) {

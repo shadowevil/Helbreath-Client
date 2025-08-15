@@ -15,7 +15,7 @@ CMsg::CMsg(char cType, char* pMsg, DWORD dwTime)
 	m_pMsg = NULL;
 	m_pMsg = new char [strlen(pMsg) + 1];
 	ZeroMemory(m_pMsg, strlen(pMsg) + 1);
-	strcpy(m_pMsg, pMsg);
+	strcpy_s(m_pMsg, strlen(pMsg) + 1, pMsg);
 	m_dwTime = dwTime;
 	m_iObjectID = -1;
 }

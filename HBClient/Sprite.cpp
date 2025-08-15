@@ -119,15 +119,15 @@ void CSprite::PutSpriteFast(int sX, int sY, int sFrame, DWORD dwTime)
 
 	if (dX < m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);							
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx <= 0) {
@@ -138,15 +138,15 @@ void CSprite::PutSpriteFast(int sX, int sY, int sFrame, DWORD dwTime)
 
 	if (dY < m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy <= 0) {
@@ -214,15 +214,15 @@ void CSprite::PutSpriteFastDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, int sY, int 
 
 	if (dX < m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx <= 0) {
@@ -233,15 +233,15 @@ void CSprite::PutSpriteFastDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, int sY, int 
 
 	if (dY < m_pDDraw->m_rcClipArea.top) 								  
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy <= 0) {
@@ -312,15 +312,15 @@ void CSprite::PutSpriteFastNoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 
 	if (dX < m_pDDraw->m_rcClipArea.left) 								  
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx <= 0) {
@@ -331,15 +331,15 @@ void CSprite::PutSpriteFastNoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 
 	if (dY < m_pDDraw->m_rcClipArea.top) 								  
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy <= 0) {
@@ -409,15 +409,15 @@ void CSprite::PutSpriteFastNoColorKeyDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, in
 
 	if (dX < m_pDDraw->m_rcClipArea.left) 								  
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx <= 0) {
@@ -426,17 +426,17 @@ void CSprite::PutSpriteFastNoColorKeyDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, in
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy <= 0) {
@@ -499,17 +499,17 @@ void CSprite::PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, DWORD dwTime)
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx <= 0) {
@@ -518,17 +518,17 @@ void CSprite::PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, DWORD dwTime)
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy <= 0) {
@@ -598,17 +598,17 @@ void CSprite::PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, DWORD d
 	if (sWidth < szx)
 		szx = sWidth;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx <= 0) {
@@ -617,17 +617,17 @@ void CSprite::PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, DWORD d
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy <= 0) {
@@ -793,17 +793,17 @@ void CSprite::PutShadowSpriteClip(int sX, int sY, int sFrame, DWORD dwTime)
   	dX = sX + pvx;
 	dY = sY + pvy;
 	
-	if (dX < m_pDDraw->m_rcClipArea.left)
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -812,17 +812,17 @@ void CSprite::PutShadowSpriteClip(int sX, int sY, int sFrame, DWORD dwTime)
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -892,17 +892,17 @@ void CSprite::PutTransSprite(int sX, int sY, int sFrame, DWORD dwTime, int alpha
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -911,17 +911,17 @@ void CSprite::PutTransSprite(int sX, int sY, int sFrame, DWORD dwTime, int alpha
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -1020,17 +1020,17 @@ void CSprite::PutTransSprite_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -1039,17 +1039,17 @@ void CSprite::PutTransSprite_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -1143,17 +1143,17 @@ void CSprite::PutTransSprite70(int sX, int sY, int sFrame, DWORD dwTime)
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -1162,17 +1162,17 @@ void CSprite::PutTransSprite70(int sX, int sY, int sFrame, DWORD dwTime)
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -1273,17 +1273,17 @@ void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -1292,17 +1292,17 @@ void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -1396,17 +1396,17 @@ void CSprite::PutTransSprite50(int sX, int sY, int sFrame, DWORD dwTime)
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -1415,17 +1415,17 @@ void CSprite::PutTransSprite50(int sX, int sY, int sFrame, DWORD dwTime)
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -1528,15 +1528,15 @@ void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 
 	if (dX < m_pDDraw->m_rcClipArea.left) 								  
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -1545,17 +1545,17 @@ void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -1648,17 +1648,17 @@ void CSprite::PutTransSprite25(int sX, int sY, int sFrame, DWORD dwTime)
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -1667,17 +1667,17 @@ void CSprite::PutTransSprite25(int sX, int sY, int sFrame, DWORD dwTime)
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -1778,17 +1778,17 @@ void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -1797,17 +1797,17 @@ void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -1901,17 +1901,17 @@ void CSprite::PutTransSprite2(int sX, int sY, int sFrame, DWORD dwTime)
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -1922,15 +1922,15 @@ void CSprite::PutTransSprite2(int sX, int sY, int sFrame, DWORD dwTime)
 
 	if (dY < m_pDDraw->m_rcClipArea.top) 								  
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -2020,17 +2020,17 @@ void CSprite::PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame,
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -2039,17 +2039,17 @@ void CSprite::PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame,
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -2138,17 +2138,17 @@ void CSprite::PutFadeSprite(short sX, short sY, short sFrame, DWORD dwTime)
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -2157,17 +2157,17 @@ void CSprite::PutFadeSprite(short sX, short sY, short sFrame, DWORD dwTime)
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -2252,17 +2252,17 @@ void CSprite::PutFadeSpriteDst(WORD * pDstAddr, short sPitch, short sX, short sY
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -2271,17 +2271,17 @@ void CSprite::PutFadeSpriteDst(WORD * pDstAddr, short sPitch, short sX, short sY
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -2398,17 +2398,17 @@ void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -2417,17 +2417,17 @@ void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -2531,17 +2531,17 @@ void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -2550,17 +2550,17 @@ void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -2665,17 +2665,17 @@ void CSprite::PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed,
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -2684,17 +2684,17 @@ void CSprite::PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed,
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -2794,17 +2794,17 @@ void CSprite::_GetSpriteRect(int sX, int sY, int sFrame)
 	m_rcBound.left   = -1;
 	m_rcBound.right  = -1;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx < 0) {
@@ -2813,17 +2813,17 @@ void CSprite::_GetSpriteRect(int sX, int sY, int sFrame)
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy < 0) {
@@ -2966,17 +2966,17 @@ BOOL CSprite::_bCheckCollison(int sX, int sY, short sFrame, int msX, int msY)
 //	if (dY < m_pDDraw->m_rcClipArea.top+3) return FALSE;
 //	if (dY+szy > m_pDDraw->m_rcClipArea.bottom-3) return FALSE;
 
-	if (dX < m_pDDraw->m_rcClipArea.left+3)
+	if (dX < (short)m_pDDraw->m_rcClipArea.left+3)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left+3 - dX);
-		szx = szx - (m_pDDraw->m_rcClipArea.left+3 - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left+3 - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left+3 - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return FALSE;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left+3;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right-3)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right-3)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right-3);
 		if (szx < 0) {
@@ -2985,17 +2985,17 @@ BOOL CSprite::_bCheckCollison(int sX, int sY, short sFrame, int msX, int msY)
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top+3)
+	if (dY < (short)m_pDDraw->m_rcClipArea.top+3)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top+3 - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top+3 - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top+3 - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top+3 - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return FALSE;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top+3;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom-3)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom-3)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom-3);
 		if (szy < 0) {
@@ -3052,17 +3052,17 @@ void CSprite::PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, D
   	dX = sX + pvx;
 	dY = sY + pvy;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < (short)m_pDDraw->m_rcClipArea.left)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ ((short)m_pDDraw->m_rcClipArea.left - dX);
+		szx = szx - ((short)m_pDDraw->m_rcClipArea.left - dX);
 		if (szx <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dX = (short)m_pDDraw->m_rcClipArea.left;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > (short)m_pDDraw->m_rcClipArea.right)
 	{
 		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
 		if (szx <= 0) {
@@ -3071,17 +3071,17 @@ void CSprite::PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, D
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < (short)m_pDDraw->m_rcClipArea.top)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ ((short)m_pDDraw->m_rcClipArea.top - dY);
+		szy = szy - ((short)m_pDDraw->m_rcClipArea.top - dY);
 		if (szy <= 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 		dY = (short)m_pDDraw->m_rcClipArea.top;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > (short)m_pDDraw->m_rcClipArea.bottom)
 	{
 		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
 		if (szy <= 0) {

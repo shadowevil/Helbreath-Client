@@ -1,8 +1,6 @@
 // Curse.cpp: implementation of the CCurse class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#include "stdafx.h"
 #include "Curse.h"
 
 #include <string.h>
@@ -40,12 +38,13 @@ void CCurse::LoadCurse(const char*filename)
     char*ptr = curse_string;
     FILE *file;
 
-    if (file = fopen(filename, "r"), !file) return;
+    if (fopen_s(&file, filename, "r") != 0 && !file)
+		return;
 
     while (fgets(buf, sizeof(buf), file)) {
 	if (strchr(comment_chars, buf[0])) continue;
 
-    	ptr += sprintf(ptr, buf);
+    	ptr += sprintf_s(ptr, MAX_CURSE_STRING, buf);
 
     	if (ptr - curse_string >= MAX_CURSE_STRING) {
     	    curse_string[MAX_CURSE_STRING - 1] = 0;
@@ -160,7 +159,7 @@ char* CCurse::ConvertString(char* str, int max_len)
 		lptr = getField(lptr, '\t', curse);		// get the first field	
 		lptr = getField(lptr, '\t', replace);	// get the second field
 		cptr = string;
-		strcpy(result, string);
+		strcpy_s(result, string);
 		while (cptr = strstr(string, curse), cptr)
 		{
 			// if there is no matching replacement of curse word
@@ -171,21 +170,29 @@ char* CCurse::ConvertString(char* str, int max_len)
 			}
 			if ( (max_len-1) < (int)( (cptr - string) + strlen(replace) + strlen(cptr + strlen(curse) ) ) )
 			{
-                // string too long, remove the curses that linger around
-                strncpy(result, string, cptr - string);
-                strcpy(result + (cptr - string), cptr + strlen(curse));
+				size_t offset = (size_t)(cptr - string);
+				strncpy_s(result, string, offset);
+				result[offset] = '\0'; // ensure null-termination
+
+				strcpy_s(result + offset, sizeof(result) - offset, cptr + strlen(curse));
 			}
 			else
 			{
-				strncpy(result, string, cptr - string);
-				strcpy(result + (cptr - string), replace);
-				strcpy(result + (cptr - string + strlen(replace)), cptr + strlen(curse));
+				size_t offset1 = (size_t)(cptr - string);
+				size_t offset2 = offset1 + strlen(replace);
+
+				strncpy_s(result, string, offset1);
+				result[offset1] = '\0'; // ensure null terminator
+
+				strcpy_s(result + offset1, sizeof(result) - offset1, replace);
+				strcpy_s(result + offset2, sizeof(result) - offset2, cptr + strlen(curse));
+
 			}
 			// refresh intermediate result
-			strcpy(string, result);
+			strcpy_s(string, result);
 		}
 	}
     result[max_len] = 0;		// prevent overflow
-    strcpy(str, result);
+    strcpy_s(str, 128, result);
     return str;
 }

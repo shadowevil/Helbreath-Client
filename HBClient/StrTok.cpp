@@ -24,9 +24,9 @@ CStrTok::~CStrTok()
 
 char* CStrTok::pGet()
 {
- register int i = 0;
- char cNextData;
- BOOL bFlag;
+	int i = 0;
+	char cNextData;
+	BOOL bFlag;
 
 	ZeroMemory(m_cToken, sizeof(m_cToken));
 

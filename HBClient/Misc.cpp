@@ -433,7 +433,7 @@ BOOL CMisc::bCheckValidName(const char*pStr)
 
 int CMisc::_iGetFileCheckSum(const char* pFn)
 {
-	HANDLE hFile;
+	HANDLE hFile{};
 	FILE * pFile;
 	DWORD  dwFileSize;
 	char* pContents;
@@ -443,19 +443,20 @@ int CMisc::_iGetFileCheckSum(const char* pFn)
 
 	// 파일 이름이 암호화 되어 있다.
 	ZeroMemory(cRealFn, sizeof(cRealFn));
-	strcpy(cRealFn, pFn);
+	strcpy_s(cRealFn, pFn);
 	for (i = 0; i < strlen(cRealFn); i++)
 	if (cRealFn[i] != NULL)	cRealFn[i]++;
 
 	hFile = CreateFileA(cRealFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);//CreateFileA(cRealFn, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
-	dwFileSize = GetFileSize(hFile, NULL);
-	CloseHandle(hFile);
 	if (hFile == INVALID_HANDLE_VALUE) {
 		return 0;
 	}
+	dwFileSize = GetFileSize(hFile, NULL);
+	CloseHandle(hFile);
 
-	pFile = fopen(cRealFn, "rb");
-	if (pFile == NULL) return 0;
+	if(fopen_s(&pFile, cRealFn, "rb") != 0 && !pFile) {
+		return 0;
+	}
 	else {
 		pContents = new char[dwFileSize+1];
 		ZeroMemory(pContents, dwFileSize+1);
@@ -493,10 +494,9 @@ BOOL CMisc::_iConvertFileXor(const char*pFn, const char* pDestFn, char cKey)
 	dwFileSize = GetFileSize(hFile, NULL) - 10;
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 
-	//	화일 내용불러오기..
-	pFile = fopen(pFn, "rt");
-	if (pFile == NULL)
+	if(fopen_s(&pFile, pFn, "rb") != 0 && !pFile) {
 		return FALSE;
+	}
 
 	//	화일사이즈만큼 읽어오기..
 	pContents = new char[dwFileSize+1];
@@ -513,13 +513,10 @@ BOOL CMisc::_iConvertFileXor(const char*pFn, const char* pDestFn, char cKey)
 	for (i = 0; i < (int)(dwFileSize); i++)
 		pContents[i] = pContents[i] ^ cKey;
 
-	//	저장화일 만들기..
-	pFile = fopen(pDestFn, "wt");
-	if (pFile == NULL) {
+	if(fopen_s(&pFile, pDestFn, "wt") != 0 && !pFile) {
 		delete[] pContents;
 		return FALSE;
 	}
-
 
 	//=======================================	mando..
 	//	내용 XOR 적용..

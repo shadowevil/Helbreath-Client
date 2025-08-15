@@ -148,11 +148,11 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	G_pGame = new class CGame; // v2.171
 
 	ZeroMemory(cRealName, sizeof(cRealName));
-	strcpy(cRealName, cSearchDll);
+	strcpy_s(cRealName, cSearchDll);
 	for (WORD i = 0; i < strlen(cRealName); i++)
 	if (cRealName[i] != NULL) cRealName[i]++;
 
-	sprintf(szAppClass, "Client-%p", (void*)hInstance);
+	sprintf_s(szAppClass, sizeof(szAppClass), "Client-%p", (void*)hInstance);
 	if (!InitApplication( hInstance))		return (FALSE);
     if (!InitInstance(hInstance, nCmdShow)) return (FALSE);
 
@@ -202,18 +202,31 @@ BOOL InitInstance( HINSTANCE hInstance, int nCmdShow )
 
 void EventLoop()
 {
- register MSG msg;
-	while( 1 ) {
-		if( PeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE ) ) {
-			if( !GetMessage( &msg, NULL, 0, 0 ) ) return;// msg.wParam;
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+	MSG msg = { 0 };
+
+	while (true) {
+		// Wait for either a message or "nothing" (timeout) to do frame updates
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			if (msg.message == WM_QUIT)
+				return;
+
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
-		else if (G_pGame->m_bIsProgramActive) G_pGame->UpdateScreen();
-		else if (G_pGame->m_cGameMode == DEF_GAMEMODE_ONLOADING) G_pGame->UpdateScreen_OnLoading( FALSE );
-		else WaitMessage();
+
+		if (G_pGame->m_bIsProgramActive) {
+			G_pGame->UpdateScreen();
+		}
+		else if (G_pGame->m_cGameMode == DEF_GAMEMODE_ONLOADING) {
+			G_pGame->UpdateScreen_OnLoading(FALSE);
+		}
+		else {
+			// Sleep until next message instead of burning CPU
+			WaitMessage();
+		}
 	}
 }
+
 
 void OnDestroy()
 {
@@ -227,9 +240,9 @@ void OnDestroy()
 	PostQuitMessage(0);
 }
 
-void CALLBACK _TimerFunc(UINT wID, UINT wUser, DWORD dwUSer, DWORD dw1, DWORD dw2)
+void CALLBACK _TimerFunc(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
-	PostMessage(G_hWnd, WM_USER_TIMERSIGNAL, wID, NULL);
+	PostMessage(G_hWnd, WM_USER_TIMERSIGNAL, uTimerID, NULL);
 }
 
 MMRESULT _StartTimer(DWORD dwTime)
@@ -255,11 +268,11 @@ void _StopTimer(MMRESULT timerid)
 
 void Initialize(const char* pCmdLine)
 {
- int iX, iY, iSum;
+	int iX, iY, iSum;
 
- int     iErrCode;
- WORD	 wVersionRequested;
- WSADATA wsaData;
+	int     iErrCode;
+	WORD	 wVersionRequested;
+	WSADATA wsaData;
 
 	// 소켓의 버젼을 체크한다.
 	wVersionRequested = MAKEWORD( 2, 2 ); 

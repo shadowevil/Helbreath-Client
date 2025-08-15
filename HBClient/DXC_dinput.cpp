@@ -32,32 +32,40 @@ DXC_dinput::~DXC_dinput()
 
 BOOL DXC_dinput::bInit(HWND hWnd, HINSTANCE hInst)
 {
- HRESULT hr;
- DIMOUSESTATE dims;	
- POINT Point;
+	HRESULT hr;
+	POINT Point;
 
 	GetCursorPos(&Point);
-	m_sX     = (short)(Point.x);
-	m_sY     = (short)(Point.y); 
+	m_sX = (short)(Point.x);
+	m_sY = (short)(Point.y);
 
-	hr = DirectInputCreateA( hInst, DIRECTINPUT_VERSION, &m_pDI, NULL );
-    if (hr != DI_OK) return FALSE;
-	hr = m_pDI->CreateDevice( GUID_SysMouse, &m_pMouse, NULL );
-	if (hr != DI_OK) return FALSE;
-	hr = m_pMouse->SetDataFormat( &c_dfDIMouse );
-	if (hr != DI_OK) return FALSE;
-	hr = m_pMouse->SetCooperativeLevel( hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
-	if (hr != DI_OK) return FALSE;
+	// Correct DirectInput8Create call for ANSI build
+	hr = DirectInput8Create(
+		hInst,
+		DIRECTINPUT_VERSION,
+		IID_IDirectInput8A,
+		(void**)&m_pDI,
+		NULL
+	);
+	if (FAILED(hr)) return FALSE;
 
-//	m_pMouse->GetDeviceState( sizeof(DIMOUSESTATE), &dims );
-	if ( m_pMouse->GetDeviceState( sizeof(DIMOUSESTATE), &dims ) != DI_OK )
+	hr = m_pDI->CreateDevice(GUID_SysMouse, &m_pMouse, NULL);
+	if (FAILED(hr)) return FALSE;
+
+	hr = m_pMouse->SetDataFormat(&c_dfDIMouse);
+	if (FAILED(hr)) return FALSE;
+
+	hr = m_pMouse->SetCooperativeLevel(hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+	if (FAILED(hr)) return FALSE;
+
+	if (m_pMouse->GetDeviceState(sizeof(DIMOUSESTATE), &dims) != DI_OK)
 	{
 		m_pMouse->Acquire();
-		//return TRUE;
 	}
 
 	return TRUE;
 }
+
 
 
 void DXC_dinput::SetAcquire(BOOL bFlag)

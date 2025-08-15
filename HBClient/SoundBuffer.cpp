@@ -38,7 +38,7 @@ CSoundBuffer::CSoundBuffer(LPDIRECTSOUND lpDS, DSCAPS DSCaps, const char* pWavFi
 	m_DSCaps	= DSCaps;
 
 	ZeroMemory(m_cWavFileName, sizeof(m_cWavFileName));
-	strcpy(m_cWavFileName, pWavFileName);
+	strcpy_s(m_cWavFileName, pWavFileName);
 
 	if (bIsSingleLoad == TRUE) {
 		//m_lpDSB[0] = NULL;
@@ -113,8 +113,10 @@ BOOL CSoundBuffer::bCreateBuffer_LoadWavFileContents(char cBufferIndex)
 	// 이미 할당되어 있는 버퍼에는 다시 로드하지 않는다.
 	if (m_lpDSB[cBufferIndex] != NULL) return FALSE;
 
-	pFile = fopen(m_cWavFileName, "rb");
-	if (pFile == NULL) return FALSE;
+	if(fopen_s(&pFile, m_cWavFileName, "rb") != 0 || pFile == NULL) 
+	{
+		return FALSE; // File not found or error opening file
+	}
 		
 	if (fread(&Wavhdr, sizeof(Wavhdr), 1, pFile) != 1) 
 	{

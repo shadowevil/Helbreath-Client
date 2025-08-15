@@ -772,7 +772,8 @@ void CMapData::_bDecodeMapInfo(char* pHeader)
 
 	cReadMode = 0;
 
-	token = strtok( pHeader, seps );   
+	char* context;
+	token = strtok_s( pHeader, seps, &context);   
 	while( token != NULL )
 	{			
 		if (cReadMode != 0)
@@ -794,7 +795,7 @@ void CMapData::_bDecodeMapInfo(char* pHeader)
 			if (memcmp(token, "MAPSIZEX",8) == 0) cReadMode = 1;
 			if (memcmp(token, "MAPSIZEY",8) == 0) cReadMode = 2;
 		}			
-		token = strtok( NULL, seps );
+		token = strtok_s( NULL, seps, &context);
 	}
 }
 
@@ -900,7 +901,7 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 	if ((m_sPivotX == -1) || (m_sPivotY == -1)) return FALSE;
 			
 	ZeroMemory(cTmpName, sizeof(cTmpName));
-	strcpy(cTmpName, pName);
+	strcpy_s(cTmpName, pName);
 	dwTime = m_dwFrameTime;
 
 	iEffectType = iEffectFrame = iEffectTotalFrame = 0;
@@ -1028,7 +1029,7 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 	if ((wObjectID < 30000) && (sAction != DEF_OBJECTNULLACTION)) {
 		// 초기 데이터로 이름과 기타 정보를 포함하고 있다. 이 경우는 이름으로 찾아야 한다. 
 		ZeroMemory(cTmpName, sizeof(cTmpName));
-		strcpy(cTmpName, pName);
+		strcpy_s(cTmpName, pName);
 		
 		dX = sX - m_sPivotX;
 		dY = sY - m_sPivotY;
@@ -1575,7 +1576,7 @@ EXIT_SEARCH_LOOP:;
 		m_pData[dX][dY].m_iEffectTotalFrame = iEffectTotalFrame;
 
 		ZeroMemory(m_pData[dX][dY].m_cOwnerName, sizeof(m_pData[dX][dY].m_cOwnerName));
-		strcpy(m_pData[dX][dY].m_cOwnerName, cTmpName);
+		strcpy_s(m_pData[dX][dY].m_cOwnerName, cTmpName);
 		
 		if ((sAction != DEF_OBJECTNULLACTION) && (sAction != DEF_MSGTYPE_CONFIRM) && (sAction != DEF_MSGTYPE_REJECT)) {
 			
@@ -1616,7 +1617,7 @@ EXIT_SEARCH_LOOP:;
 		m_pData[dX][dY].m_sDeadStatus     = sStatus;
 		
 		ZeroMemory(m_pData[dX][dY].m_cDeadOwnerName, sizeof(m_pData[dX][dY].m_cDeadOwnerName));
-		strcpy(m_pData[dX][dY].m_cDeadOwnerName, cTmpName);
+		strcpy_s(m_pData[dX][dY].m_cDeadOwnerName, cTmpName);
 		
 		m_pData[dX][dY].m_dwDeadOwnerTime  = dwTime;
 		m_pData[dX][dY].m_iDeadChatMsg = iChatIndex;
@@ -1670,7 +1671,7 @@ BOOL __fastcall CMapData::bGetOwner(short sX, short sY, short * pOwnerType, char
 	*pV1        = m_pData[dX][dY].m_sV1;
 	*pV2        = m_pData[dX][dY].m_sV2;
 
-	strcpy(pName, m_pData[dX][dY].m_cOwnerName);
+	strcpy_s(pName, 21, m_pData[dX][dY].m_cOwnerName);
 
 	return TRUE;
 }
@@ -1700,7 +1701,7 @@ BOOL __fastcall CMapData::bGetDeadOwner(short sX, short sY, short * pOwnerType, 
 	*pFrame     = m_pData[dX][dY].m_cDeadOwnerFrame; 
 	*pChatIndex = m_pData[dX][dY].m_iDeadChatMsg;
 
-	strcpy(pName, m_pData[dX][dY].m_cDeadOwnerName);
+	strcpy_s(pName, 21, m_pData[dX][dY].m_cDeadOwnerName);
 
 	*pItemSprite      = m_pData[dX][dY].m_sItemSprite;
 	*pItemSpriteFrame = m_pData[dX][dY].m_sItemSpriteFrame;
@@ -3426,7 +3427,7 @@ BOOL __fastcall CMapData::bSetDeadOwner(WORD wObjectID, short sX, short sY, shor
  BOOL bEraseFlag = FALSE;
 	
 	ZeroMemory(pTmpName, sizeof(pTmpName));
-	if (pName != NULL) strcpy(pTmpName, pName);
+	if (pName != NULL) strcpy_s(pTmpName, pName);
 
 	if ((sX < m_sPivotX) || (sX >= m_sPivotX + MAPDATASIZEX) || 
 		(sY < m_sPivotY) || (sY >= m_sPivotY + MAPDATASIZEY)) {
@@ -3486,7 +3487,7 @@ BOOL __fastcall CMapData::bSetDeadOwner(WORD wObjectID, short sX, short sY, shor
 	m_pData[dX][dY].m_iDeadApprColor  = iApprColor;
 	m_pData[dX][dY].m_sDeadStatus     = sStatus;
 	m_pData[dX][dY].m_cDeadOwnerFrame = -1;
-	strcpy(m_pData[dX][dY].m_cDeadOwnerName, pTmpName);
+	strcpy_s(m_pData[dX][dY].m_cDeadOwnerName, pTmpName);
 
 	m_iObjectIDcacheLocX[wObjectID] = -1*sX; //dX; 
 	m_iObjectIDcacheLocY[wObjectID] = -1*sY; //dY;
@@ -3577,7 +3578,7 @@ BOOL __fastcall CMapData::bGetOwner(short sX, short sY, char* pName, short * pOw
 	dY = sY - m_sPivotY;
 
 	*pOwnerType = m_pData[dX][dY].m_sOwnerType;
-	strcpy(pName, m_pData[dX][dY].m_cOwnerName);
+	strcpy_s(pName, 21, m_pData[dX][dY].m_cOwnerName);
 	*pOwnerStatus = m_pData[dX][dY].m_sStatus;
 	*pObjectID    = m_pData[dX][dY].m_wObjectID;
 
@@ -3659,7 +3660,7 @@ void CMapData::GetOwnerStatusByObjectID(WORD wObjectID, char*pOwnerType, char*pD
 		*pAppr4     = m_pData[iX][iY].m_sAppr4;
 		*pStatus    = m_pData[iX][iY].m_sStatus;
 		*pColor     = m_pData[iX][iY].m_iApprColor;
-		strcpy(pName, m_pData[iX][iY].m_cOwnerName);
+		strcpy_s(pName, 21, m_pData[iX][iY].m_cOwnerName);
 		return;
 	}
 }

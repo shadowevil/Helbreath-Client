@@ -10,8 +10,6 @@
 
 XSocket::XSocket(HWND hWnd, int iBlockLimit)
 {
- register int i;
-	
 	m_cType       = NULL;
 	m_pRcvBuffer  = NULL;
 	m_pSndBuffer  = NULL;
@@ -22,7 +20,7 @@ XSocket::XSocket(HWND hWnd, int iBlockLimit)
 	m_dwReadSize = 3;    
 	m_dwTotalReadSize = 0;
 
-	for (i = 0; i < DEF_XSOCKBLOCKLIMIT; i++) {
+	for (int i = 0; i < DEF_XSOCKBLOCKLIMIT; i++) {
 		m_iUnsentDataSize[i] = 0;
 		m_pUnsentDataList[i] = NULL;
 	}
@@ -41,12 +39,10 @@ XSocket::XSocket(HWND hWnd, int iBlockLimit)
 
 XSocket::~XSocket()
 {
- register int i;
-	
 	if (m_pRcvBuffer != NULL) delete[] m_pRcvBuffer;
 	if (m_pSndBuffer != NULL) delete[] m_pSndBuffer;
 
-	for (i = 0; i < DEF_XSOCKBLOCKLIMIT; i++)
+	for (int i = 0; i < DEF_XSOCKBLOCKLIMIT; i++)
 		if (m_pUnsentDataList[i] != NULL) delete[] m_pUnsentDataList[i];
 
 	// 소켓을 마저 읽고 닫는다.
@@ -157,7 +153,7 @@ BOOL XSocket::bBlockConnect(const char* pAddr, int iPort, unsigned int uiMsg)
 	setsockopt(m_Sock, SOL_SOCKET, SO_RCVBUF, (const char FAR *)&dwOpt, sizeof(dwOpt));
 	setsockopt(m_Sock, SOL_SOCKET, SO_SNDBUF, (const char FAR *)&dwOpt, sizeof(dwOpt));
 
-	strcpy(m_pAddr, pAddr);
+	strcpy_s(m_pAddr, pAddr);
 	m_iPortNum = iPort;
 
 	m_uiMsg = uiMsg;
@@ -207,7 +203,7 @@ BOOL XSocket::bConnect(const char* pAddr, int iPort, unsigned int uiMsg)
 	setsockopt(m_Sock, SOL_SOCKET, SO_RCVBUF, (const char FAR *)&dwOpt, sizeof(dwOpt));
 	setsockopt(m_Sock, SOL_SOCKET, SO_SNDBUF, (const char FAR *)&dwOpt, sizeof(dwOpt));
 
-	strcpy(m_pAddr, pAddr);
+	strcpy_s(m_pAddr, pAddr);
 	m_iPortNum = iPort;
 
 	m_uiMsg = uiMsg;
@@ -539,13 +535,12 @@ BOOL XSocket::bAccept(class XSocket * pXSock, unsigned int uiMsg)
 {
  SOCKET			AcceptedSock;
  sockaddr		Addr;
- register int	iLength;
  DWORD			dwOpt;
 
 	if (m_cType != DEF_XSOCK_LISTENSOCK) return FALSE;
 	if (pXSock == NULL) return FALSE;
 
-	iLength = sizeof(Addr);
+	int iLength = sizeof(Addr);
 	// 클라이언트의 접속을 받는다 . 
 	AcceptedSock = accept(m_Sock, (struct sockaddr FAR *)&Addr,(int FAR *)&iLength);
 	if (AcceptedSock == INVALID_SOCKET) 
@@ -588,10 +583,9 @@ void XSocket::_CloseConn()
 
 char* XSocket::pGetRcvDataPointer(DWORD * pMsgSize, char* pKey)
 {
- WORD * wp;
- DWORD  dwSize;
- register int i;
- char cKey;
+	WORD * wp;
+	DWORD  dwSize;
+	char cKey;
 	
 	cKey = m_pRcvBuffer[0];
 	if (pKey != NULL) *pKey = cKey;		// v1.4
@@ -602,7 +596,7 @@ char* XSocket::pGetRcvDataPointer(DWORD * pMsgSize, char* pKey)
 
 	// v.14 : m_pSndBuffer +3 부터 dwSize까지 cKey가 0이 아니라면 암호화를 푼다.
 	if (cKey != NULL) {
-		for (i = 0; i < (int)(dwSize); i++) {
+		for (int i = 0; i < (int)(dwSize); i++) {
 			m_pRcvBuffer[3+i] = (char)( m_pRcvBuffer[3+i] ^ (cKey ^ (dwSize - i)) );
 			m_pRcvBuffer[3+i] -= (i ^ cKey);
 		}
@@ -617,7 +611,7 @@ int XSocket::iGetPeerAddress(char* pAddrString)
 	
 	iLen = sizeof(sockaddr);
 	iRet = getpeername(m_Sock, (struct sockaddr *)&sockaddr, &iLen);
-	strcpy(pAddrString, (const char*)inet_ntoa(sockaddr.sin_addr));
+	strcpy_s(pAddrString, 16, (const char*)inet_ntoa(sockaddr.sin_addr));
 
 	return iRet;
 }
